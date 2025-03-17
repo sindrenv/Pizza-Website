@@ -1,0 +1,15 @@
+<h1>Our Pizza Menu 🍕</h1>
+
+<div>
+    {% for pizza in pizzas %}
+        <div>
+            <img src="{{ pizza.image.url }}" alt="{{ pizza.name }}" width="200">
+            <h2>{{ pizza.name }}</h2>
+            <p>{{ pizza.description }}</p>
+            <p><strong>Price: ${{ pizza.price }}</strong></p>
+        </div>
+    {% endfor %}
+</div>
+
+<a href="{% url 'place_order' %}">Order Now</a>
+
