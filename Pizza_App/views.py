@@ -9,7 +9,8 @@ def menu(request):
     pizzas = Pizza.objects.all()
     return render(request, 'menu.html', {'pizzas': pizzas})
 
-def place_order(request):
+
+def order(request):
     pizzas = Pizza.objects.all()
 
     if request.method == "POST":

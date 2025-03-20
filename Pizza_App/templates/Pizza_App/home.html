@@ -1,3 +1,105 @@
-<h1>Welcome to Delicious Pizza! 🍕</h1>
-<a href="{% url 'menu' %}">View Menu</a>
-<a href="{% url 'place_order' %}">Order Now</a>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Pizzería</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #FFF5E1;
+            color: #2D2D2D;
+        }
+
+        header {
+            background-color: #E63946;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #2D2D2D;
+            font-weight: bold;
+        }
+
+        section {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #6FAE75;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        footer {
+            background-color: #E63946;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Welcome to the Pizzería!</h1>
+        <p>The best pizzas of the city </p>
+    </header>
+
+    <nav>
+        <a href="#menu">Menú</a>
+        <a href="#about">About us</a>
+        <a href="#order">Place your order</a>
+        <a href="#contact">Contact</a>
+    </nav>
+
+    <section id="menu">
+        <h2>Our Menú</h2>
+        <p>Discover our delicious pizzas with fresh ingredients.</p>
+        <a href="#order" class="cta-button">Make your order</a>
+    </section>
+
+    <section id="about">
+        <h2>About us</h2>
+        <p>At La Pizzería, we combine tradition and innovation to offer you the best artisan pizzas.</p>
+    </section>
+
+    <section id="order">
+        <h2>Place your order</h2>
+        <p>Order your favorite pizza and we'll deliver it to your home..</p>
+        <a href="#contact" class="cta-button">Contact us</a>
+    </section>
+
+    <section id="contact">
+        <h2>Contact</h2>
+        <p>📍 Adress: Pizza 123, Oslo</p>
+        <p>📞 Phone: 123-456-789</p>
+        <p>📧 Email: contacto@lapizzeria.com</p>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 La Pizzería.</p>
+    </footer>
+</body>
+
+</html>
