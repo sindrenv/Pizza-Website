@@ -1,6 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 
-from .models import Pizza, Order, Customer
+from .models import Pizza, Order, Customer, OrderPizza
 
 def home(request):
     return render(request, 'Pizza_App/home.html')
@@ -10,29 +10,43 @@ def menu(request):
     return render(request, 'menu.html', {'pizzas': pizzas})
 
 
-def order(request):
+def order_pizza(request):
     pizzas = Pizza.objects.all()
 
     if request.method == "POST":
-        name = request.POST['name']
-        email = request.POST['email']
-        phone = request.POST['phone']
-        address = request.POST['address']
-        selected_pizzas = request.POST.getlist('pizzas')
+        customer_name = request.POST['name']
+        customer_email = request.POST['email']
+        customer_phone = request.POST['phone']
+        customer_address = request.POST['address']
+        pizzas_ids = request.POST.getlist('pizzas')
+        quantities = request.POST.getlist('quantities')
 
         # Find or create the customer
         customer, created = Customer.objects.get_or_create(
-            email=email,
-            defaults={'name': name, 'phone': phone, 'address': address}
+            email=customer_email,
+            defaults={'name': customer_name, 'phone': customer_phone, 'address': customer_address}
         )
 
-        # Calculate the order total
-        total = sum(Pizza.objects.filter(id__in=selected_pizzas).values_list('price', flat=True))
+             # Crear el pedido
+        order = Order.objects.create(customer=customer, total=0)
 
-        # Create the order linked to the customer
-        new_order = Order.objects.create(customer=customer, total=total)
-        new_order.pizzas.add(*selected_pizzas)
+        total = 0
+        for pizza_id, quantity in zip(pizza_id, quantities):
+            pizza = Pizza.objects.get(id=pizza_id)
+            quantity = int(quantity)
+            OrderPizza.objects.create(order=order, pizza=pizza, quantity=quantity)
+            total += pizza.price * quantity
 
-        return render(request, 'confirmation.html', {'order': new_order})
+        order.total = total
+        order.save()
+
+        return render(request, 'confirmation.html', {
+            'customer': customer,
+            'order_items': OrderPizza,
+            'total': total
+        })
 
     return render(request, 'order.html', {'pizzas': pizzas})
+
+def confirmation(request):
+    return render(request, 'confirmation.html')

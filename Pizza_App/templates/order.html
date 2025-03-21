@@ -1,21 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-<h1>Place Your Order 🛒</h1>
 
-<form method="post">
-    {% csrf_token %}
-    <label>Name: <input type="text" name="name" required></label><br>
-    <label>Email: <input type="email" name="email" required></label><br>
-    <label>Phone: <input type="text" name="phone" required></label><br>
-    <label>Address: <textarea name="address" required></textarea><br>
-
-    <h2>Select Your Pizzas:</h2>
-    {% for pizza in pizzas %}
-        <input type="checkbox" name="pizzas" value="{{ pizza.id }}">
-        {{ pizza.name }} - ${{ pizza.price }}<br>
-    {% endfor %}
-
-    <button type="submit">Place Order</button>
-</form>
-
+    <h1>Order Your Pizza</h1>
+    
+    <form method="post">
+        {% csrf_token %}
+    
+        <h2>Customer Information</h2>
+        <label>Name:</label>
+        <input type="text" name="name" required><br>
+        
+        <label>Email:</label>
+        <input type="email" name="email" required><br>
+        
+        <label>Phone:</label>
+        <input type="text" name="phone" required><br>
+        
+        <label>Address:</label>
+        <textarea name="address" required></textarea><br>
+    
+        <h2>Choose Your Pizzas</h2>
+        {% for pizza in pizzas %}
+        <div>
+            <input type="checkbox" name="pizzas" value="{{ pizza.id }}">
+            {{ pizza.name }} - ${{ pizza.price }}
+            <label>Quantity:</label>
+            <input type="number" name="quantities" value="1" min="1">
+        </div>
+        {% endfor %}
+    
+        <button type="submit">Place Order</button>
+    </form>
 </html>
+    

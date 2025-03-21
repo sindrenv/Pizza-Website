@@ -19,12 +19,14 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
 from Pizza_App import views  
+from Pizza_App.views import order_pizza
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('', views.home, name='home'),
     path('menu/', views.menu, name='menu'),
-    path('order/', views.order, name='place_order'),
+    path('order/', order_pizza, name='order_pizza'),
+    path('order/success/', views.confirmation, name='order_success')
 ]
 
 # Serve media files during development
