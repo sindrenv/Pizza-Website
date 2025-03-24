@@ -26,7 +26,9 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('menu/', views.menu, name='menu'),
     path('order/', order_pizza, name='order_pizza'),
-    path('order/success/', views.confirmation, name='order_success')
+    path('order/success/', views.confirmation, name='order_success'),
+    path('login/', views.login_view, name='login'),
+    path('register/', views.register_view, name='register')
 ]
 
 # Serve media files during development

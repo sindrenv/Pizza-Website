@@ -1,4 +1,7 @@
 from django.shortcuts import redirect, render
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User
+
 
 from .models import Pizza, Order, Customer, OrderPizza
 
@@ -50,3 +53,40 @@ def order_pizza(request):
 
 def confirmation(request):
     return render(request, 'confirmation.html')
+
+
+def register_view(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        password1 = request.POST.get("password1")
+        password2 = request.POST.get("password2")
+
+        # Check if passwords match
+        if password1 != password2:
+            return render(request, "register.html", {"error": "Passwords do not match"})
+
+        # Create the user
+        user = User.objects.create_user(username=username, email=email, password=password1)
+        login(request, user)  # Log the user in immediately after registration
+        return redirect('home')  # Redirect to the home page after successful registration
+
+    return render(request, "register.html")
+
+
+def login_view(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            return redirect(request.GET.get("next", "home"))  # Redirects to home after login
+        else:
+            return render(request, "login.html", {
+                "username": username,
+                "error": "Wrong password"
+            })
+    
+    return render(request, "login.html")
