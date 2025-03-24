@@ -19,13 +19,13 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
 from Pizza_App import views  
-from Pizza_App.views import order_pizza
+from Pizza_App.views import order
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('', views.home, name='home'),
     path('menu/', views.menu, name='menu'),
-    path('order/', order_pizza, name='order_pizza'),
+    path('order/', views.order, name='order'),
     path('order/success/', views.confirmation, name='order_success'),
     path('login/', views.login_view, name='login'),
     path('register/', views.register_view, name='register')

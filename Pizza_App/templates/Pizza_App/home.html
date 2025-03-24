@@ -57,24 +57,53 @@
             bottom: 0;
             width: 100%;
         }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between; /* Espacia los elementos */
+            align-items: center; /* Centra verticalmente */
+        }
+
+        .login-nav {
+            margin-right: 20px; /* Da un poco de margen al lado derecho */
+        }
+
+        .login-nav a {
+            color: white; /* Color del enlace */
+            text-decoration: none; /* Quitar subrayado */
+            font-weight: bold; /* Texto en negrita */
+            padding: 8px 16px; /* Espaciado para hacerlo más visible */
+            border: 2px solid white; /* Borde alrededor del login */
+            border-radius: 5px; /* Bordes redondeados */
+        }
+
+        .login-nav a:hover {
+            background-color: white; /* Fondo blanco al pasar el mouse */
+            color: #E63946; /* Texto rojo */
+        }
     </style>
+    
 </head>
 
 <body>
     <header>
         <h1>Welcome to the Pizzería!</h1>
         <p>The best pizzas of the city </p>
+        <nav class="login-nav">
+            <a href="{% url 'login' %}">Login</a>
+            <a href="{% url 'register' %}">register</a>
+        </nav>
     </header>
 
     <nav>
         <a href="{% url 'menu' %}">Menu</a>
         <a href="#about">About us</a>
-        <a href="#order">Place your order</a>
+        <a href="{% url 'order' %}">Order</a>
         <a href="#contact">Contact</a>
     </nav>
 
     <section id="menu">
-        <h2>Our Menu</h2>
+        <h2>Our Menú</h2>
         <p>Discover our delicious pizzas with fresh ingredients.</p>
         <a href="#order" class="cta-button">Make your order</a>
     </section>
