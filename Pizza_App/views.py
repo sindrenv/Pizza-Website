@@ -34,10 +34,10 @@ def order(request):
         order = Order.objects.create(customer=customer, total=0)
 
         total = 0
-        for pizza_id, quantity in zip(pizza_id, quantities):
+        for pizza_id, quantity in zip(pizzas_ids, quantities):
             pizza = Pizza.objects.get(id=pizza_id)
             quantity = int(quantity)
-            OrderPizza.objects.create(order=order, pizza=pizza, quantity=quantity)
+            OrderPizza.objects.create(order=order, pizza=pizza, quantity=quantity, price_at_time=pizza.price )
             total += pizza.price * quantity
 
         order.total = total

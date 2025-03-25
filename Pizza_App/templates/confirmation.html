@@ -15,7 +15,7 @@
 
     {% if order_items %}
         <ul>
-            {% for item in order_items %}
+            {% for item in OrderPizza %}
                 <li>{{ item.pizza }} - Quantity: {{ item.quantity }}</li>
             {% endfor %}
         </ul>
