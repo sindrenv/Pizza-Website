@@ -24,6 +24,20 @@ class Pizza(models.Model):
 
         def __str__(self):
             return self.name
+        
+class PizzaSize(models.Model):
+    SIZE_CHOICES = [
+        ('S', 'Small'),
+        ('M', 'Medium'),
+        ('L', 'Large'),
+    ]
+    pizza = models.ForeignKey(Pizza, related_name="sizes", on_delete=models.CASCADE)
+    size = models.CharField(max_length=1, choices=SIZE_CHOICES)
+    price = models.DecimalField(max_digits=6, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.pizza.name} ({self.get_size_display()})"
+
 
 class Order(models.Model):
         customer = models.ForeignKey(Customer, on_delete=models.CASCADE)

@@ -84,15 +84,23 @@
         <textarea name="address" required></textarea><br>
     
         <h2>Choose Your Pizzas</h2>
+     
         {% for pizza in pizzas %}
-        <div>
-            <input type="checkbox" name="pizzas" value="{{ pizza.id }}">
-            {{ pizza.name }} - ${{ pizza.price }}
-            <label>Quantity:</label>
-            <input type="number" name="quantities" value="1" min="1">
+        <div style="margin-bottom: 20px;">
+          <strong>{{ pizza.name }}</strong><br>
+      
+          <label for="size_{{ pizza.id }}">Size:</label>
+          <select name="pizza_size_id_{{ pizza.id }}">
+            {% for size in pizza.sizes.all %}
+              <option value="{{ size.id }}">{{ size.get_size_display }} – kr{{ size.price }}</option>
+            {% endfor %}
+          </select>
+      
+          <label for="quantity_{{ pizza.id }}">Quantity:</label>
+          <input type="number" name="quantity_{{ pizza.id }}" value="1" min="0">
         </div>
-        {% endfor %}
-    
+      {% endfor %}
+          
         <button type="submit">Place Order</button>
     </form>
 

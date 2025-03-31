@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 
 
-from .models import Pizza, Order, Customer, OrderPizza
+from .models import Pizza, Order, Customer, OrderPizza, PizzaSize
 
 def home(request):
     return render(request, 'Pizza_App/home.html')
@@ -17,38 +17,75 @@ def order(request):
     pizzas = Pizza.objects.all()
 
     if request.method == "POST":
+        # ------------------------------
+        # 🧍 Customer Information
+        # ------------------------------
         customer_name = request.POST['name']
         customer_email = request.POST['email']
         customer_phone = request.POST['phone']
         customer_address = request.POST['address']
-        pizzas_ids = request.POST.getlist('pizzas')
-        quantities = request.POST.getlist('quantities')
 
-        # Find or create the customer
+        # ------------------------------
+        # 👤 Create or Find Customer
+        # ------------------------------
         customer, created = Customer.objects.get_or_create(
             email=customer_email,
-            defaults={'name': customer_name, 'phone': customer_phone, 'address': customer_address}
+            defaults={
+                'name': customer_name,
+                'phone': customer_phone,
+                'address': customer_address
+            }
         )
 
-             # Crear el pedido
+        # ------------------------------
+        # 🧾 Create Order
+        # ------------------------------
         order = Order.objects.create(customer=customer, total=0)
-
         total = 0
-        for pizza_id, quantity in zip(pizzas_ids, quantities):
-            pizza = Pizza.objects.get(id=pizza_id)
-            quantity = int(quantity)
-            OrderPizza.objects.create(order=order, pizza=pizza, quantity=quantity, price_at_time=pizza.price )
-            total += pizza.price * quantity
 
+        # ------------------------------
+        # 🍕 Loop Through All Pizzas
+        # ------------------------------
+        for pizza in pizzas:
+            quantity_str = request.POST.get(f'quantity_{pizza.id}')
+            size_id = request.POST.get(f'pizza_size_id_{pizza.id}')
+
+            if quantity_str and size_id:
+                quantity = int(quantity_str)
+                if quantity > 0:
+                    pizza_size = PizzaSize.objects.get(id=size_id)
+
+                    # ------------------------------
+                    # 💾 Save OrderPizza
+                    # ------------------------------
+                    OrderPizza.objects.create(
+                        order=order,
+                        pizza=pizza,
+                        quantity=quantity,
+                        price_at_time=pizza_size.price
+                    )
+
+                    # 💰 Update Total
+                    total += pizza_size.price * quantity
+
+        # ------------------------------
+        # 💳 Save Final Total to Order
+        # ------------------------------
         order.total = total
         order.save()
 
+        # ------------------------------
+        # ✅ Show Confirmation Page
+        # ------------------------------
         return render(request, 'confirmation.html', {
             'customer': customer,
-            'order_items': OrderPizza,
+            'order_items': order.orderpizza_set.all(),
             'total': total
         })
 
+    # ------------------------------
+    # 🌐 Initial Page Load (GET)
+    # ------------------------------
     return render(request, 'order.html', {'pizzas': pizzas})
 
 def confirmation(request):
