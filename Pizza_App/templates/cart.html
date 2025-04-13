@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Cart - The Pizzería</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #FFF5E1;
+            margin: 0;
+            padding: 20px;
+            color: #2D2D2D;
+        }
+
+        header {
+            background-color: #E63946;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .cart-container {
+            max-width: 700px;
+            margin: 30px auto;
+            background-color: #fff8ec;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .cart-item {
+            border-bottom: 1px solid #ccc;
+            padding: 10px 0;
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .total {
+            font-weight: bold;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+
+        .order-form input, .order-form textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .order-form button {
+            background-color: #6FAE75;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .order-form button:hover {
+            background-color: #5A9E64;
+        }
+
+        .clear-link {
+            color: #E63946;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .clear-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Your Cart</h1>
+</header>
+
+<div class="cart-container">
+    {% if cart %}
+        {% for item in cart %}
+            <div class="cart-item">
+                <strong>{{ item.pizza_name }}</strong> ({{ item.size_label }})<br>
+                Quantity: {{ item.quantity }}<br>
+                Price: kr{{ item.price }}<br>
+                Subtotal: kr{{ item.price|floatformat:2|add:item.quantity|floatformat:2 }}
+            </div>
+        {% endfor %}
+
+        <p class="total">Total: kr{{ total }}</p>
+
+        <h2>Delivery Info</h2>
+        <form method="post" action="{% url 'checkout' %}" class="order-form">
+            {% csrf_token %}
+            <input type="text" name="name" placeholder="Name" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="text" name="phone" placeholder="Phone" required>
+            <textarea name="address" placeholder="Address" required></textarea>
+            <button type="submit">Place Order</button>
+        </form>
+
+        <p><a href="{% url 'clear_cart' %}" class="clear-link">🗑️ Clear Cart</a></p>
+
+    {% else %}
+        <p>Your cart is empty.</p>
+    {% endif %}
+</div>
+
+</body>
+</html>

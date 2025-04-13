@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Pizzería</title>
+    <title>Order Pizza - La Pizzería</title>
     <style>
         body {
-            margin: 100;
+            margin: 0;
             font-family: Arial, sans-serif;
             background-color: #FFF5E1;
             color: #2D2D2D;
@@ -33,121 +31,120 @@
             font-weight: bold;
         }
 
-        section {
-            padding: 20px;
-            text-align: center;
+        .order-section {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff8ec;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
         }
 
-        .cta-button {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #6FAE75;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            margin-top: 20px;
+        h2 {
+            color: #E63946;
         }
 
-        footer {
-            background-color: #E63946;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            position: relative;
-            bottom: 0;
-            width: 100%;
+        .pizza-block {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 20px;
         }
-    </style>
-</head>
 
-<header>
-    <h1>Take your order</h1>
-    <p>The pizzas are waitting for you</p>
-</header>
-
-
-    
-    <form method="post" class="order-form">
-        {% csrf_token %}
-    
-        <h2>Customer Information</h2>
-        <label>Name:</label>
-        <input type="text" name="name" required><br>
-        
-        <label>Email:</label>
-        <input type="email" name="email" required><br>
-        
-        <label>Phone:</label>
-        <input type="text" name="phone" required><br>
-        
-        <label>Address:</label>
-        <textarea name="address" required></textarea><br>
-    
-        <h2>Choose Your Pizzas</h2>
-     
-        {% for pizza in pizzas %}
-        <div style="margin-bottom: 20px;">
-          <strong>{{ pizza.name }}</strong><br>
-      
-          <label for="size_{{ pizza.id }}">Size:</label>
-          <select name="pizza_size_id_{{ pizza.id }}">
-            {% for size in pizza.sizes.all %}
-              <option value="{{ size.id }}">{{ size.get_size_display }} – kr{{ size.price }}</option>
-            {% endfor %}
-          </select>
-      
-          <label for="quantity_{{ pizza.id }}">Quantity:</label>
-          <input type="number" name="quantity_{{ pizza.id }}" value="1" min="0">
-        </div>
-      {% endfor %}
-          
-        <button type="submit">Place Order</button>
-    </form>
-
-    <style>
-        .order-form {
-            max-width: 600px; /* Limita el ancho del formulario */
-            margin: 20px auto; /* Centra el formulario */
-            padding: 20px;
-            background-color: #FFFAF0; /* Color de fondo */
-            border-radius: 10px; /* Bordes redondeados */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+        .pizza-block:last-child {
+            border-bottom: none;
         }
-    
-        .order-form h2 {
-            color: #E63946; /* Color del título */
-        }
-    
-        .order-form label {
-            display: block; /* Muestra las etiquetas en bloque */
+
+        label {
+            display: block;
             margin-top: 10px;
             font-weight: bold;
         }
-    
-        .order-form input,
-        .order-form textarea {
-            width: 100%; /* Ajusta al ancho del formulario */
+
+        select, input[type="number"] {
+            width: 100%;
             padding: 8px;
             margin-top: 5px;
             border: 1px solid #ccc;
             border-radius: 5px;
         }
-    
-        .order-form button {
+
+        button {
             background-color: #6FAE75;
             color: white;
             padding: 10px 20px;
+            margin-top: 15px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            margin-top: 20px;
         }
-    
-        .order-form button:hover {
-            background-color: #5A9E64; /* Cambio de color al pasar el cursor */
+
+        button:hover {
+            background-color: #5A9E64;
+        }
+
+        .cart-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        .cart-link a {
+            color: #E63946;
+            text-decoration: none;
+        }
+
+        .cart-link a:hover {
+            text-decoration: underline;
         }
     </style>
-    
+</head>
 
+<body>
+
+<header>
+    <h1>Order Pizza</h1>
+    <p>Choose your favorite pizza and size</p>
+</header>
+
+<nav>
+    <a href="{% url 'home' %}">Home</a>
+    <a href="{% url 'menu' %}">Menu</a>
+    <a href="{% url 'view_cart' %}">🛒 Cart</a>
+</nav>
+
+<section class="order-section">
+    {% for pizza in pizzas %}
+        <div class="pizza-block">
+            <h2>{{ pizza.name }}</h2>
+            <p>{{ pizza.description }}</p>
+            {% if pizza.image %}
+                <img src="{{ pizza.image.url }}" alt="{{ pizza.name }}" width="200">
+            {% endif %}
+
+            <form method="post" action="{% url 'add_to_cart' %}">
+                {% csrf_token %}
+                <input type="hidden" name="pizza_id" value="{{ pizza.id }}">
+
+                <label for="size_{{ pizza.id }}">Size:</label>
+                <select name="size_id" id="size_{{ pizza.id }}" required>
+                    {% for size in pizza.sizes.all %}
+                        <option value="{{ size.id }}">{{ size.get_size_display }} – kr{{ size.price }}</option>
+                    {% endfor %}
+                </select>
+
+                <label for="quantity_{{ pizza.id }}">Quantity:</label>
+                <input type="number" name="quantity" id="quantity_{{ pizza.id }}" value="1" min="1">
+
+                <button type="submit">Add to Cart</button>
+            </form>
+        </div>
+    {% endfor %}
+
+    <div class="cart-link">
+        <a href="{% url 'view_cart' %}">Go to Cart 🛒</a>
+    </div>
+</section>
+
+</body>
 </html>
-    

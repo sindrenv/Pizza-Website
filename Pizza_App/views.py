@@ -91,6 +91,77 @@ def order(request):
 def confirmation(request):
     return render(request, 'confirmation.html')
 
+def add_to_cart(request):
+    if request.method == 'POST':
+        pizza_id = request.POST.get('pizza_id')
+        size_id = request.POST.get('size_id')
+        quantity = int(request.POST.get('quantity'))
+
+        pizza_size = PizzaSize.objects.get(id=size_id)
+
+        item = {
+            'pizza_id': pizza_id,
+            'pizza_name': pizza_size.pizza.name,
+            'size_id': size_id,
+            'size_label': pizza_size.get_size_display(),
+            'price': float(pizza_size.price),
+            'quantity': quantity
+        }
+
+        cart = request.session.get('cart', [])
+        cart.append(item)
+        request.session['cart'] = cart
+
+        return redirect('view_cart')
+
+    return redirect('menu')
+
+def view_cart(request):
+    cart = request.session.get('cart', [])
+    total = sum(item['price'] * item['quantity'] for item in cart)
+    return render(request, 'cart.html', {'cart': cart, 'total': total})
+
+def clear_cart(request):
+    request.session['cart'] = []
+    return redirect('view_cart')
+    
+def checkout(request):
+    if request.method == 'POST':
+        name = request.POST['name']
+        email = request.POST['email']
+        phone = request.POST['phone']
+        address = request.POST['address']
+        cart = request.session.get('cart', [])
+
+        customer, created = Customer.objects.get_or_create(
+            email=email,
+            defaults={'name': name, 'phone': phone, 'address': address}
+        )
+
+        order = Order.objects.create(customer=customer, total=0)
+        total = 0
+
+        for item in cart:
+            pizza_size = PizzaSize.objects.get(id=item['size_id'])
+            quantity = int(item['quantity'])
+            total += pizza_size.price * quantity
+
+            OrderPizza.objects.create(
+                order=order,
+                pizza=pizza_size.pizza,
+                quantity=quantity,
+                price_at_time=pizza_size.price
+            )
+
+        order.total = total
+        order.save()
+
+        request.session['cart'] = []  # Clear cart
+
+        return render(request, 'confirmation.html', {'order': order})
+
+    return redirect('view_cart')
+
 
 def register_view(request):
     if request.method == "POST":

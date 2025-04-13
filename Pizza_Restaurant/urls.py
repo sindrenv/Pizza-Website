@@ -29,7 +29,13 @@ urlpatterns = [
     path('order/success/', views.confirmation, name='order_success'),
     path('login/', views.login_view, name='login'),
     path('register/', views.register_view, name='register'),
-    path('confirmation/<int:order_id>/', confirmation, name='confirmation')
+    path('confirmation/<int:order_id>/', confirmation, name='confirmation'),
+   
+    # 🛒 Shopping Cart URLs
+    path('add-to-cart/', views.add_to_cart, name='add_to_cart'),
+    path('cart/', views.view_cart, name='view_cart'),
+    path('checkout/', views.checkout, name='checkout'),
+    path('clear-cart/', views.clear_cart, name='clear_cart')
 ]
     
     
@@ -37,3 +43,4 @@ urlpatterns = [
 # Serve media files during development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
