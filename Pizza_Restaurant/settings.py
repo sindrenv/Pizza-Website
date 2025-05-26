@@ -129,5 +129,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 import os
 
 # Media settings
+DEBUG = True
 MEDIA_URL = '/media/'  # URL prefix for media files
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Folder where media files will be stored
+
+
+

@@ -1,30 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fff8dc;
+            margin: 0;
+            padding: 0;
+        }
 
-<h1>Order Confirmation</h1>
+        .container {
+            max-width: 700px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
 
+        h1 {
+            text-align: center;
+            color: #e63946;
+        }
+
+        h2 {
+            margin-top: 30px;
+            color: #333;
+        }
+
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        li {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .total {
+            font-weight: bold;
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 10px 20px;
+            background-color: #6fae75;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        a:hover {
+            background-color: #5a9662;
+        }
+    </style>
+</head>
 <body>
+    <div class="container">
+        <h1>Order Confirmation</h1>
 
-    {% if customer %}
-        <p>Thank you, <strong>{{ customer.name }}</strong>! Your order has been received.</p>
-    {% else %}
-        <p>Thank you for your order!</p>
-    {% endif %}
+        {% if customer %}
+            <p>Thank you, <strong>{{ customer.name }}</strong>! Your order has been received.</p>
+        {% else %}
+            <p>Thank you for your order!</p>
+        {% endif %}
 
-    <h2>Your Order:</h2>
+        <h2>Your Order:</h2>
 
-    {% if order_items %}
-        <ul>
-            {% for item in OrderPizza %}
-                <li>{{ item.pizza }} - Quantity: {{ item.quantity }}</li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No items in your order.</p>
-    {% endif %}
+        {% if order_items %}
+            <ul>
+                {% for item in order_items %}
+                    <li>{{ item.pizza.name }} - Quantity: {{ item.quantity }} - Price: ${{ item.price_at_time }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No items in your order.</p>
+        {% endif %}
 
-    <p><strong>Total:</strong> ${{ total }}</p>
+        <p class="total">Total: ${{ total }}</p>
 
-<a href="/">Back to Home</a>
+        <a href="/">Back to Home</a>
+    </div>
 </body>
 </html>

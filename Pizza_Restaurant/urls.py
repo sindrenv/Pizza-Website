@@ -19,17 +19,17 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
 from Pizza_App import views  
-from Pizza_App.views import order, confirmation
+from Pizza_App.views import order, order_confirmation
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('', views.home, name='home'),
     path('menu/', views.menu, name='menu'),
     path('order/', views.order, name='order'),
-    path('order/success/', views.confirmation, name='order_success'),
+    path('order/success/', views.order_confirmation, name='order_success'),
     path('login/', views.login_view, name='login'),
     path('register/', views.register_view, name='register'),
-    path('confirmation/<int:order_id>/', confirmation, name='confirmation'),
+    path('confirmation/<int:order_id>/', order_confirmation, name='confirmation'),
    
     # 🛒 Shopping Cart URLs
     path('add-to-cart/', views.add_to_cart, name='add_to_cart'),
@@ -43,4 +43,6 @@ urlpatterns = [
 # Serve media files during development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
 

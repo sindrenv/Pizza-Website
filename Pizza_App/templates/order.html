@@ -97,6 +97,22 @@
         .cart-link a:hover {
             text-decoration: underline;
         }
+
+
+
+        .messages {
+            list-style: none;
+            padding: 10px;
+            margin: 10px auto;
+            width: fit-content;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+        }
+
     </style>
 </head>
 
@@ -112,6 +128,16 @@
     <a href="{% url 'menu' %}">Menu</a>
     <a href="{% url 'view_cart' %}">🛒 Cart</a>
 </nav>
+
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}
+                <button onclick="this.parentElement.style.display='none';" style="margin-left: 10px;">✖</button>
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
 
 <section class="order-section">
     {% for pizza in pizzas %}

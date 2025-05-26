@@ -1,6 +1,9 @@
 from django.shortcuts import redirect, render
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
+from django.contrib import messages
+from django.shortcuts import render, get_object_or_404
+from .models import Order, OrderPizza
 
 
 from .models import Pizza, Order, Customer, OrderPizza, PizzaSize
@@ -58,15 +61,13 @@ def order(request):
                     # ------------------------------
                     # 💾 Save OrderPizza
                     # ------------------------------
-                    OrderPizza.objects.create(
-                        order=order,
-                        pizza=pizza,
-                        quantity=quantity,
-                        price_at_time=pizza_size.price
-                    )
-
-                    # 💰 Update Total
-                    total += pizza_size.price * quantity
+                OrderPizza.objects.create(
+                    order=order,
+                    pizza=pizza,
+                    quantity=quantity,
+                    price_at_time=pizza_size.price
+                )
+                print(f"Added {quantity}x {pizza.name} to order {order.id}")
 
         # ------------------------------
         # 💳 Save Final Total to Order
@@ -88,8 +89,19 @@ def order(request):
     # ------------------------------
     return render(request, 'order.html', {'pizzas': pizzas})
 
-def confirmation(request):
-    return render(request, 'confirmation.html')
+def order_confirmation(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    order_items = OrderPizza.objects.filter(order=order)
+
+    total = sum(item.price_at_time * item.quantity for item in order_items)
+    print("Order Items:", order.orderpizza_set.all())
+
+    return render(request, 'confirmation.html', {
+        'order': order,
+        'order_items': order_items,
+        'total': total,
+        'customer': order.customer if hasattr(order, 'customer') else None,
+    })
 
 def add_to_cart(request):
     if request.method == 'POST':
@@ -112,7 +124,8 @@ def add_to_cart(request):
         cart.append(item)
         request.session['cart'] = cart
 
-        return redirect('view_cart')
+        messages.success(request, "🍕 Pizza added to cart!")
+        return redirect('order')  # 👈 Redirects back to the order page
 
     return redirect('menu')
 
@@ -152,6 +165,8 @@ def checkout(request):
                 quantity=quantity,
                 price_at_time=pizza_size.price
             )
+            print("OrderPizza count for order", order.id, "=", order.orderpizza_set.count())
+
 
         order.total = total
         order.save()

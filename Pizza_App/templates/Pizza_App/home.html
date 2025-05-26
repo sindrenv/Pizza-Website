@@ -6,11 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Pizzería</title>
     <style>
-        body {
+        html, body {
+            height: 100%;
             margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+}
+
+        body {
             font-family: Arial, sans-serif;
-            background-color: #FFF5E1;
-            color: #2D2D2D;
+            background: url("/media/pizzas/background.jpg") no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .content {
+            background-color: rgba(255, 248, 220, 0.9); /* semi-transparent background */
+            padding: 20px;
         }
 
         header {
@@ -53,10 +65,8 @@
             color: white;
             text-align: center;
             padding: 10px;
-            position: relative;
-            bottom: 0;
-            width: 100%;
-        }
+            margin-top: auto;  /* Pushes footer to bottom */
+}
 
         .header-container {
             display: flex;
@@ -80,6 +90,8 @@
         .login-nav a:hover {
             background-color: white; /* Fondo blanco al pasar el mouse */
             color: #E63946; /* Texto rojo */
+
+
         }
     </style>
     
@@ -88,45 +100,32 @@
 <body>
     <header>
         <h1>Welcome to the Pizzería!</h1>
-        <p>The best pizzas of the city </p>
+        <p>The best pizzas of the city</p>
+    
         <nav class="login-nav">
             <a href="{% url 'login' %}">Login</a>
             <a href="{% url 'register' %}">register</a>
         </nav>
+    
+        <nav class="main-nav">
+            <a href="{% url 'menu' %}">Menu</a>
+            <a href="{% url 'order' %}">Order</a>
+            <a href="#about">About us</a>
+        </nav>
     </header>
 
-    <nav>
-        <a href="{% url 'menu' %}">Menu</a>
-        <a href="#about">About us</a>
-        <a href="{% url 'order' %}">Order</a>
-        <a href="#contact">Contact</a>
-    </nav>
 
-    <section id="menu">
-        <h2>Our Menú</h2>
-        <p>Discover our delicious pizzas with fresh ingredients.</p>
-        <a href="#order" class="cta-button">Make your order</a>
+
+    <section>
+        <a href="{% url 'order' %}"class="cta-button">Make your order</a>
     </section>
 
-    <section id="about">
-        <h2>About us</h2>
-        <p>At La Pizzería, we combine tradition and innovation to offer you the best artisan pizzas.</p>
-    </section>
 
-    <section id="order">
-        <h2>Place your order</h2>
-        <p>Order your favorite pizza and we'll deliver it to your home..</p>
-        <a href="#contact" class="cta-button">Contact us</a>
-    </section>
-
-    <section id="contact">
+    <footer>
         <h2>Contact</h2>
         <p>📍 Adress: Pizza 123, Oslo</p>
         <p>📞 Phone: 123-456-789</p>
-        <p>📧 Email: contacto@lapizzeria.com</p>
-    </section>
-
-    <footer>
+        <p>📧 Email: contact@lapizzeria.com</p>
         <p>&copy; 2025 La Pizzería.</p>
     </footer>
 </body>
