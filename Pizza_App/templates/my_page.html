@@ -2,19 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>La Pizzería - Home</title>
+    <title>My Page - La Pizzería</title>
     <style>
         body {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
             font-family: Arial, sans-serif;
             background-color: #FFF5E1;
             margin: 0;
             padding: 0;
             color: #2D2D2D;
-            background: url("/media/pizzas/background.jpg") no-repeat center center fixed;
-            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
         header {
@@ -38,8 +36,29 @@
         }
 
         section {
+            max-width: 800px;
+            margin: 0 auto;
             padding: 20px;
-            text-align: center;
+            background-color: #fff8ec;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+
+        h2 {
+            color: #E63946;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            padding: 10px;
         }
 
         .cta-button {
@@ -61,50 +80,44 @@
             color: white;
             text-align: center;
             padding: 10px;
-            position: relative;
-            bottom: 0;
-            width: 100%;
             margin-top: auto;
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>Welcome to the Pizzería!</h1>
-        <p>The best pizzas in the city</p>
-
+        <h1>My Page</h1>
         <nav>
             <a href="{% url 'menu' %}">Menu</a>
             <a href="{% url 'order' %}">Order</a>
-            <a href="#about">About us</a>
-            {% if user.is_authenticated %}
-                <a href="{% url 'my_page' %}">My Page</a>
-            {% else %}
-                <a href="{% url 'login' %}">Login</a>
-                <a href="{% url 'register' %}">Register</a>
-            {% endif %}
+            <a href="{% url 'my_page' %}">My Page</a>
+            <a href="{% url 'logout' %}">Logout</a>
         </nav>
     </header>
 
-    {% if user.is_authenticated %}
-      <section>
-        <h2>Hello, {{ user.username }}! 🍕</h2>
-        <p>Check out your previous orders, or order your next pizza now!</p>
-        <a href="{% url 'order' %}" class="cta-button">Order Now</a>
-      </section>
-    {% else %}
-      <section>
-        <h2>Welcome to our pizzeria 🍕</h2>
-        <p>Please <a href="{% url 'login' %}">log in</a> or <a href="{% url 'register' %}">create an account</a> to get started.</p>
-      </section>
-    {% endif %}
-
     <section>
-        <a href="{% url 'order' %}" class="cta-button">Make your order</a>
+        <h2>Welcome, {{ user.username }}!</h2>
+        <p>Email: {{ user.email }}</p>
+
+        <h3>Your Past Orders</h3>
+        {% if orders %}
+            <ul>
+                {% for order in orders %}
+                    <li>
+                        Order #{{ order.id }}<br>
+                        Date: {{ order.created_at|date:"d M Y, H:i" }}<br>
+                        Total: kr{{ order.total }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>You have no past orders.</p>
+        {% endif %}
+
+        <a href="{% url 'order' %}" class="cta-button">Order Now</a>
     </section>
 
     <footer>
-        <h2>Contact</h2>
         <p>📍 Address: Pizza 123, Oslo</p>
         <p>📞 Phone: 123-456-789</p>
         <p>📧 Email: contact@lapizzeria.com</p>
