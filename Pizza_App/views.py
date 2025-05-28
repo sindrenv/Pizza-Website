@@ -218,3 +218,19 @@ def login_view(request):
             })
     
     return render(request, "login.html")
+
+from .models import Customer
+
+def home(request):
+    customer = None
+    customer_id = request.session.get('customer_id')
+    if customer_id:
+        try:
+            customer = Customer.objects.get(id=customer_id)
+        except Customer.DoesNotExist:
+            pass  # just in case
+
+    return render(request, 'home.html', {
+        'customer': customer,
+    })
+
