@@ -63,6 +63,16 @@
 <body>
     <header>
         <h1>Our Pizza Menu 🍕</h1>
+        <nav class="login-nav">
+            <a href="{% url 'login' %}"class="cta-button">Login</a>
+            <a href="{% url 'register' %}"class="cta-button">register</a>
+        </nav>
+    
+        <nav class="main-nav">
+            <a href="{% url 'menu' %}">Menu</a>
+            <a href="{% url 'order' %}">Order</a>
+            <a href="#about">About us</a>
+        </nav>
     </header>
 
 <div class="pizza-container">

@@ -64,20 +64,21 @@
 </head>
 <body>
     <div class="container">
-        <h1>Order Confirmation</h1>
-
-        {% if customer %}
-            <p>Thank you, <strong>{{ customer.name }}</strong>! Your order has been received.</p>
-        {% else %}
-            <p>Thank you for your order!</p>
-        {% endif %}
-
+        
         <h2>Your Order:</h2>
 
         {% if order_items %}
             <ul>
                 {% for item in order_items %}
-                    <li>{{ item.pizza.name }} - Quantity: {{ item.quantity }} - Price: ${{ item.price_at_time }}</li>
+                    <li>
+                        {% if item.pizza %}
+                            {{ item.pizza.name }}
+                        {% else %}
+                            (no pizza)
+                        {% endif %}
+                        - Quantity: {{ item.quantity }}
+                        - Price: ${{ item.price_at_time }}
+                    </li>
                 {% endfor %}
             </ul>
         {% else %}
