@@ -53,13 +53,19 @@ class Topping(models.Model):
 
 
 class Order(models.Model):
+    STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('COMPLETED', 'Completed'),
+        ('CANCELLED', 'Cancelled'),
+    ]
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     total = models.DecimalField(max_digits=8, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
 
     def __str__(self):
-        return f"Order by {self.customer.name} - ${self.total}"
-
+        return f"Order #{self.id} - {self.customer.name} - {self.get_status_display()}"
+   
     def calculate_total(self):
         total = sum(item.price_at_time * item.quantity for item in self.order_pizzas.all())
         self.total = total

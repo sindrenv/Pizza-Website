@@ -33,6 +33,9 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(next_page='home'), name='logout'),
 
     path('my-page/', views.my_page, name='my_page'),
+    path('reorder/<int:order_id>/', views.reorder, name='reorder'),
+    path('order/confirmation/<int:order_id>/', views.order_confirmation, name='order_confirmation'),
+    
 
     # 🛒 Shopping Cart URLs
     path('add-to-cart/', views.add_to_cart, name='add_to_cart'),

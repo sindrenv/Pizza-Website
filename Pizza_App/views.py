@@ -2,7 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.template.loader import render_to_string
 from django.urls import reverse
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from .models import Pizza, Order, Customer, OrderPizza, PizzaSize, Topping, OrderPizzaTopping
 
@@ -172,13 +174,29 @@ def checkout(request):
 
 def order_confirmation(request, order_id):
     order = get_object_or_404(Order, id=order_id)
-    order_items = order.order_pizzas.select_related('pizza').all()
+    order_items = order.order_pizzas.select_related('pizza', 'size').prefetch_related('toppings')
     total = sum(item.price_at_time * item.quantity for item in order_items)
 
     return render(request, 'confirmation.html', {
         'order': order,
         'order_items': order_items,
         'total': total,
+        'customer': order.customer,
+    })
+
+    if order.customer.email:
+        send_mail(
+            f"Order #{order.id} Confirmation",
+            message,
+            "noreply@pizzashop.com",  # From email (puedes cambiarlo)
+            [order.customer.email],
+            fail_silently=True  # No romper si hay error
+        )
+
+    return render(request, 'confirmation.html', {
+        'order': order,
+        'order_items': items,
+        'total': order.total,
         'customer': order.customer,
     })
 
@@ -241,3 +259,44 @@ def my_page(request):
         'customer': customer,
         'user': request.user
     })
+
+@login_required
+def reorder(request, order_id):
+    try:
+        customer_profile = request.user.customer_profile
+    except Customer.DoesNotExist:
+        messages.error(request, "You don't have a customer profile.")
+        return redirect('my_page')
+
+    original_order = get_object_or_404(Order, id=order_id, customer=customer_profile)
+
+    # Create a new order
+    new_order = Order.objects.create(
+        customer=customer_profile,
+        total=0,
+        status='PENDING'
+    )
+
+    # Copy each pizza from original order
+    for item in original_order.order_pizzas.all():
+        new_item = OrderPizza.objects.create(
+            order=new_order,
+            pizza=item.pizza,
+            quantity=item.quantity,
+            size=item.size,
+            price_at_time=item.price_at_time,
+            special_instructions=item.special_instructions
+        )
+
+        # Copy toppings
+        for topping in item.toppings.all():
+            OrderPizzaTopping.objects.create(
+                order_pizza=new_item,
+                topping=topping
+            )
+
+    # Recalculate total
+    new_order.calculate_total()
+
+    messages.success(request, f"Order #{original_order.id} reordered successfully.")
+    return redirect('order_confirmation', order_id=new_order.id)
