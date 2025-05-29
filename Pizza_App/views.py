@@ -175,7 +175,12 @@ def checkout(request):
 def order_confirmation(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     order_items = order.order_pizzas.select_related('pizza', 'size').prefetch_related('toppings')
-    total = sum(item.price_at_time * item.quantity for item in order_items)
+    total = 0
+    for item in order_items:
+        base_price = item.price_at_time
+        toppings_price = sum(topping.price for topping in item.toppings.all())
+        item.total_price = (base_price + toppings_price) * item.quantity
+        total += item.total_price
 
     return render(request, 'confirmation.html', {
         'order': order,
@@ -249,7 +254,12 @@ def login_view(request):
 def my_page(request):
     try:
         customer = request.user.customer_profile
-        orders = Order.objects.filter(customer=customer).order_by('-created_at')
+        orders = Order.objects.filter(customer=customer).prefetch_related(
+            'order_pizzas__pizza',
+            'order_pizzas__size',
+            'order_pizzas__toppings'
+        ).order_by('-created_at')    
+    
     except Customer.DoesNotExist:
         customer = None
         orders = []

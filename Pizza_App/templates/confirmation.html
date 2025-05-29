@@ -68,22 +68,29 @@
         <h2>Your Order:</h2>
 
         {% if order_items %}
-            <ul>
-                {% for item in order_items %}
-                    <li>
-                        {% if item.pizza %}
-                            {{ item.pizza.name }}
-                        {% else %}
-                            (no pizza)
-                        {% endif %}
-                        - Quantity: {{ item.quantity }}
-                        - Price: ${{ item.price_at_time }}
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No items in your order.</p>
-        {% endif %}
+    <ul>
+        {% for item in order_items %}
+            <li>
+                {{ item.quantity }}x {{ item.pizza.name }} — {{ item.price_at_time|floatformat:2 }} kr
+                {% if item.size %} ({{ item.size.name }}) {% endif %}  
+                <br>
+                Toppings:
+                {% if item.toppings.all %}
+                    {% for topping in item.toppings.all %}
+                        {{ topping.name }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                {% else %}
+                    None
+                {% endif %}
+                <br>
+                Subtotal: {{ item.total_price|floatformat:2 }} kr
+            </li>
+        {% endfor %}
+    </ul>
+    <p><strong>Total: {{ total }} kr</strong></p>
+{% else %}
+    <p>No items in your order.</p>
+{% endif %}
 
         <p class="total">Total: ${{ total }}</p>
 
