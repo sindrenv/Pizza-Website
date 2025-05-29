@@ -5,6 +5,11 @@ from django.contrib import messages
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from .models import Pizza, Order, Customer, OrderPizza, PizzaSize
+from Pizza_App.models import Customer, Order
+
+
+
+
 
 def home(request):
     # Just render the home page and use `user.is_authenticated` in the template
@@ -164,10 +169,21 @@ def register_view(request):
             return render(request, "register.html", {"error": "Passwords do not match"})
 
         user = User.objects.create_user(username=username, email=email, password=password1)
+
+        # Create the customer profile
+        Customer.objects.create(
+            user=user,
+            name=username,  # Or any default
+            email=email,
+            phone='',
+            address=''
+        )
+
         login(request, user)
         return redirect('home')
 
     return render(request, "register.html")
+
 
 def login_view(request):
     if request.method == "POST":
@@ -186,13 +202,18 @@ def login_view(request):
 
     return render(request, "login.html")
 
+
 @login_required
 def my_page(request):
-    # Example: Fetch the customer's past orders, if you have a Customer model tied to the user
-    orders = Order.objects.filter(customer__email=request.user.email).order_by('-created_at')
+    try:
+        customer = request.user.customer_profile
+        orders = Order.objects.filter(customer=customer).order_by('-created_at')
+    except Customer.DoesNotExist:
+        customer = None
+        orders = []
 
-    # You could also add personal info, etc.
     return render(request, 'my_page.html', {
         'orders': orders,
+        'customer': customer,
         'user': request.user
     })

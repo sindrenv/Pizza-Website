@@ -14,27 +14,44 @@
             flex-direction: column;
             min-height: 100vh;
         }
-
+    
         header {
             background-color: #E63946;
             color: white;
             padding: 20px;
             text-align: center;
         }
-
+    
         nav {
             display: flex;
             justify-content: center;
             gap: 20px;
             margin: 20px 0;
         }
-
+    
         nav a {
             text-decoration: none;
             color: #2D2D2D;
             font-weight: bold;
         }
-
+    
+        /* Style for logout button to match nav links */
+        .nav-link-button {
+            background: none;
+            border: none;
+            color: #2D2D2D;
+            font-weight: bold;
+            font-family: inherit;
+            font-size: inherit; /* Match link size */
+            cursor: pointer;
+            padding: 0;
+            text-decoration: none;
+        }
+    
+        .nav-link-button:hover {
+            text-decoration: underline;
+        }
+    
         section {
             max-width: 800px;
             margin: 0 auto;
@@ -43,16 +60,16 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.05);
         }
-
+    
         h2 {
             color: #E63946;
         }
-
+    
         ul {
             list-style: none;
             padding: 0;
         }
-
+    
         li {
             background-color: #fff;
             border: 1px solid #ddd;
@@ -60,7 +77,7 @@
             margin-bottom: 10px;
             padding: 10px;
         }
-
+    
         .cta-button {
             display: inline-block;
             padding: 10px 20px;
@@ -70,11 +87,11 @@
             border-radius: 5px;
             margin-top: 20px;
         }
-
+    
         .cta-button:hover {
             background-color: #5A9E64;
         }
-
+    
         footer {
             background-color: #E63946;
             color: white;
@@ -83,7 +100,7 @@
             margin-top: auto;
         }
     </style>
-</head>
+    </head>
 <body>
     <header>
         <h1>My Page</h1>
@@ -91,14 +108,25 @@
             <a href="{% url 'menu' %}">Menu</a>
             <a href="{% url 'order' %}">Order</a>
             <a href="{% url 'my_page' %}">My Page</a>
-            <a href="{% url 'logout' %}">Logout</a>
+            <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="nav-link-button">Logout</button>
+            </form>
         </nav>
     </header>
 
     <section>
         <h2>Welcome, {{ user.username }}!</h2>
-        <p>Email: {{ user.email }}</p>
-
+    
+        {% if customer %}
+          <p>Name: {{ customer.name }}</p>
+          <p>Email: {{ customer.email }}</p>
+          <p>Phone: {{ customer.phone }}</p>
+          <p>Address: {{ customer.address }}</p>
+        {% else %}
+          <p>No customer profile found for you. Please contact support if this is unexpected.</p>
+        {% endif %}
+    
         <h3>Your Past Orders</h3>
         {% if orders %}
             <ul>
@@ -113,7 +141,7 @@
         {% else %}
             <p>You have no past orders.</p>
         {% endif %}
-
+    
         <a href="{% url 'order' %}" class="cta-button">Order Now</a>
     </section>
 
