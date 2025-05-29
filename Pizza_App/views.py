@@ -172,7 +172,7 @@ def checkout(request):
 
 def order_confirmation(request, order_id):
     order = get_object_or_404(Order, id=order_id)
-    order_items = order.orderpizza_set.select_related('pizza').all()
+    order_items = order.order_pizzas.select_related('pizza').all()
     total = sum(item.price_at_time * item.quantity for item in order_items)
 
     return render(request, 'confirmation.html', {
