@@ -4,23 +4,21 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-from .models import Pizza, Order, Customer, OrderPizza, PizzaSize
-from Pizza_App.models import Customer, Order
-
-
-
+from .models import Pizza, Order, Customer, OrderPizza, PizzaSize, Topping, OrderPizzaTopping
 
 
 def home(request):
-    # Just render the home page and use `user.is_authenticated` in the template
     return render(request, 'Pizza_App/home.html')
+
 
 def menu(request):
     pizzas = Pizza.objects.all()
     return render(request, 'menu.html', {'pizzas': pizzas})
 
+
 def order(request):
     pizzas = Pizza.objects.all()
+    toppings = Topping.objects.all()
 
     if request.method == "POST":
         customer_name = request.POST['name']
@@ -28,8 +26,7 @@ def order(request):
         customer_phone = request.POST['phone']
         customer_address = request.POST['address']
 
-        # Create or find customer
-        customer, created = Customer.objects.get_or_create(
+        customer, _ = Customer.objects.get_or_create(
             email=customer_email,
             defaults={
                 'name': customer_name,
@@ -38,30 +35,38 @@ def order(request):
             }
         )
 
-        # Create new order
         order = Order.objects.create(customer=customer, total=0)
         total = 0
 
-        # Loop through pizzas and add to order
         for pizza in pizzas:
             quantity_str = request.POST.get(f'quantity_{pizza.id}')
             size_id = request.POST.get(f'pizza_size_id_{pizza.id}')
+            toppings_ids = request.POST.getlist(f'toppings_{pizza.id}')
+            instructions = request.POST.get(f'instructions_{pizza.id}', '')
 
             if quantity_str and size_id:
                 quantity = int(quantity_str)
                 if quantity > 0:
                     pizza_size = PizzaSize.objects.get(id=size_id)
+                    toppings_objs = Topping.objects.filter(id__in=toppings_ids)
+                    toppings_total = sum(t.price for t in toppings_objs)
+                    price = pizza_size.price + toppings_total
 
-                    OrderPizza.objects.create(
+                    order_pizza = OrderPizza.objects.create(
                         order=order,
                         pizza=pizza,
+                        size=pizza_size,
                         quantity=quantity,
-                        price_at_time=pizza_size.price
+                        price_at_time=price,
+                        special_instructions=instructions
                     )
-                    total += pizza_size.price * quantity
+
+                    for topping in toppings_objs:
+                        OrderPizzaTopping.objects.create(order_pizza=order_pizza, topping=topping)
+
+                    total += price * quantity
                     print(f"Added {quantity}x {pizza.name} to order {order.id}")
 
-        # Save total
         order.total = total
         order.save()
 
@@ -71,24 +76,31 @@ def order(request):
             'total': total
         })
 
-    # GET request: show order form
-    return render(request, 'order.html', {'pizzas': pizzas})
+    return render(request, 'order.html', {'pizzas': pizzas, 'toppings': toppings})
+
 
 def add_to_cart(request):
     if request.method == 'POST':
         pizza_id = request.POST.get('pizza_id')
         size_id = request.POST.get('size_id')
         quantity = int(request.POST.get('quantity'))
+        topping_ids = request.POST.getlist('toppings')
+        instructions = request.POST.get('instructions', '')
 
         pizza_size = PizzaSize.objects.get(id=size_id)
+        selected_toppings = Topping.objects.filter(id__in=topping_ids)
+        toppings_list = [{'id': t.id, 'name': t.name, 'price': float(t.price)} for t in selected_toppings]
+        toppings_total = sum(t['price'] for t in toppings_list)
 
         item = {
             'pizza_id': pizza_id,
             'pizza_name': pizza_size.pizza.name,
             'size_id': size_id,
             'size_label': pizza_size.get_size_display(),
-            'price': float(pizza_size.price),
-            'quantity': quantity
+            'price': float(pizza_size.price) + toppings_total,
+            'toppings': toppings_list,
+            'quantity': quantity,
+            'instructions': instructions
         }
 
         cart = request.session.get('cart', [])
@@ -100,14 +112,17 @@ def add_to_cart(request):
 
     return redirect('menu')
 
+
 def view_cart(request):
     cart = request.session.get('cart', [])
     total = sum(item['price'] * item['quantity'] for item in cart)
     return render(request, 'cart.html', {'cart': cart, 'total': total})
 
+
 def clear_cart(request):
     request.session['cart'] = []
     return redirect('view_cart')
+
 
 def checkout(request):
     if request.method == 'POST':
@@ -127,24 +142,33 @@ def checkout(request):
 
         for item in cart:
             pizza_size = PizzaSize.objects.get(id=item['size_id'])
-            quantity = int(item['quantity'])
-            subtotal = pizza_size.price * quantity
-            total += subtotal
+            quantity = item['quantity']
+            price = item['price']
+            instructions = item.get('instructions', '')
 
-            OrderPizza.objects.create(
+            order_pizza = OrderPizza.objects.create(
                 order=order,
                 pizza=pizza_size.pizza,
+                size=pizza_size,
                 quantity=quantity,
-                price_at_time=pizza_size.price
+                price_at_time=price,
+                special_instructions=instructions
             )
+
+            for topping_data in item.get('toppings', []):
+                topping = Topping.objects.get(id=topping_data['id'])
+                OrderPizzaTopping.objects.create(order_pizza=order_pizza, topping=topping)
+
+            total += price * quantity
 
         order.total = total
         order.save()
-
         request.session['cart'] = []
+
         return redirect(reverse('order_confirmation', args=[order.id]))
 
     return redirect('view_cart')
+
 
 def order_confirmation(request, order_id):
     order = get_object_or_404(Order, id=order_id)
@@ -158,6 +182,7 @@ def order_confirmation(request, order_id):
         'customer': order.customer,
     })
 
+
 def register_view(request):
     if request.method == "POST":
         username = request.POST.get("username")
@@ -170,10 +195,9 @@ def register_view(request):
 
         user = User.objects.create_user(username=username, email=email, password=password1)
 
-        # Create the customer profile
         Customer.objects.create(
             user=user,
-            name=username,  # Or any default
+            name=username,
             email=email,
             phone='',
             address=''

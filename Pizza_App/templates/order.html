@@ -140,6 +140,7 @@
 {% endif %}
 
 <section class="order-section">
+    {% load static %}
     {% for pizza in pizzas %}
         <div class="pizza-block">
             <h2>{{ pizza.name }}</h2>
@@ -158,12 +159,45 @@
                         <option value="{{ size.id }}">{{ size.get_size_display }} – kr{{ size.price }}</option>
                     {% endfor %}
                 </select>
-
-                <label for="quantity_{{ pizza.id }}">Quantity:</label>
-                <input type="number" name="quantity" id="quantity_{{ pizza.id }}" value="1" min="1">
-
-                <button type="submit">Add to Cart</button>
-            </form>
+                
+                 <!-- 🍕 Add Toppings -->
+                 <label>Toppings:</label>
+                 {% for topping in toppings %}
+                    <div style="display: inline-flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                        <input type="checkbox" name="toppings" value="{{ topping.id }}" id="topping_{{ pizza.id }}_{{ topping.id }}">
+                        <label for="topping_{{ pizza.id }}_{{ topping.id }}">{{ topping.name }} (+kr{{ topping.price }})</label>
+                    </div>
+                 {% endfor %}
+               
+                 <!-- Instrucciones -->
+                 <div style="margin: 1rem 0;">
+                    <label for="instructions_{{ pizza.id }}" style="
+                      display: block;
+                      margin-bottom: 6px;
+                      font-weight: 600;
+                      font-size: 14px;
+                      color: #333;
+                    ">
+                      Special Instructions:
+                    </label>
+                    <textarea name="instructions" id="instructions_{{ pizza.id }}" rows="3" placeholder="e.g. No onions, extra cheese..." style="
+                      width: 100%;
+                      padding: 10px;
+                      border: 1px solid #ccc;
+                      border-radius: 6px;
+                      font-size: 14px;
+                      font-family: inherit;
+                      background-color: #fafafa;
+                      resize: none; /* Esto la hace fija */
+                    "></textarea>
+                  </div>
+                  
+                 <!-- Cantidad -->
+                 <label for="quantity_{{ pizza.id }}">Quantity:</label>
+                 <input type="number" name="quantity" id="quantity_{{ pizza.id }}" value="1" min="1">
+               
+                 <button type="submit">Add to Cart</button>
+               </form>
         </div>
     {% endfor %}
 
