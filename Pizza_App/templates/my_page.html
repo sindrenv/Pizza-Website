@@ -130,42 +130,47 @@
         <h3>Your Past Orders</h3>
         {% if orders %}
             <ul>
-       {% for order in orders %}
-    <li>
-        <strong>Order #{{ order.id }}</strong><br>
-        Date: {{ order.created_at|date:"d M Y, H:i" }}<br>
-        Total: kr{{ order.total }}
-
-        <ul>
-            {% for item in order.order_pizzas.all %}
+            {% for order in orders %}
                 <li>
-                        {{ item.quantity }}x {{ item.pizza.name }}
-                        {% if item.size %} ({{ item.size.name }}){% endif %}<br>
-                    
-                        {% if item.toppings.all %}
-                            Toppings:
-                            {% for topping in item.toppings.all %}
-                                {{ topping.name }}{% if not forloop.last %}, {% endif %}
-                            {% endfor %}
-                        {% else %}
-                            No toppings
-                        {% endif %}
-                        <br>
-                        Price: {{ item.price_at_time }} kr
+                    <strong>Order #{{ order.id }}</strong><br>
+                    Date: {{ order.created_at|date:"d M Y, H:i" }}<br>
+                    Total: kr{{ order.total }}<br>
+                    <strong>Status:</strong>
+                    <span class="status {{ order.status|lower }}">{{ order.get_status_display }}</span><br>
+        
+                    <ul>
+                        {% for item in order.order_pizzas.all %}
+                            <li>
+                                {{ item.quantity }}x {{ item.pizza.name }}
+                                {% if item.size %} ({{ item.size.name }}){% endif %}<br>
+        
+                                {% if item.toppings.all %}
+                                    Toppings:
+                                    {% for topping in item.toppings.all %}
+                                        {{ topping.name }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    No toppings
+                                {% endif %}
+                                <br>
+                                Price: {{ item.price_at_time }} kr
+                            </li>
+                        {% endfor %}
+                    </ul>
+        
+                    <a href="{% url 'order_confirmation' order.id %}">View Details</a>
+        
+                    <form method="post" action="{% url 'reorder' order.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="cta-button">Reorder</button>
+                    </form>
                 </li>
             {% endfor %}
-        </ul>
-
-        <form method="post" action="{% url 'reorder' order.id %}">
-            {% csrf_token %}
-            <button type="submit" class="cta-button">Reorder</button>
-        </form>
-    </li>
-{% endfor %}
-
+            </ul>
         {% else %}
             <p>You have no past orders.</p>
         {% endif %}
+        
     
         <a href="{% url 'order' %}" class="cta-button">Order Now</a>
     </section>
