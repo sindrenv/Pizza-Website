@@ -12,6 +12,9 @@ from .models import Pizza, Order, Customer, OrderPizza, PizzaSize, Topping, Orde
 def home(request):
     return render(request, 'Pizza_App/home.html')
 
+def about_us(request):
+    return render (request, 'aboutus.html')
+
 
 def menu(request):
     pizzas = Pizza.objects.all()
