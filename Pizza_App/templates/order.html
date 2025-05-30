@@ -201,6 +201,20 @@
         </div>
     {% endfor %}
 
+<h3>Choose Your Drinks</h3>
+{% for drink in drinks %}
+  <form method="POST" action="{% url 'add_to_cart' %}">
+    {% csrf_token %}
+    <p>
+      {{ drink.name }} - {{ drink.price }} kr
+      <input type="hidden" name="drink_id" value="{{ drink.id }}">
+      <input type="number" name="quantity" value="1" min="1" style="width: 50px;">
+      <button type="submit">Add</button>
+    </p>
+  </form>
+{% endfor %}
+
+
     <div class="cart-link">
         <a href="{% url 'view_cart' %}">Go to Cart 🛒</a>
     </div>

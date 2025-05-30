@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
     Category, Order, OrderPizza, Customer,
-    Pizza, PizzaSize, OrderPizzaTopping, Topping
+    Pizza, PizzaSize, OrderPizzaTopping, Topping, Drink, OrderDrink
 )
 from django.utils.html import format_html
 from django.urls import reverse
@@ -9,6 +9,8 @@ from django.urls import reverse
 admin.site.register(Category)
 admin.site.register(Pizza)
 admin.site.register(PizzaSize)
+admin.site.register(Drink)
+admin.site.register(OrderDrink)
 
 # 🔹 Toppings admin
 @admin.register(Topping)

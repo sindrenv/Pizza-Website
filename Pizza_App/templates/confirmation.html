@@ -83,9 +83,20 @@
                     None
                 {% endif %}
                 <br>
-                Subtotal: {{ item.total_price|floatformat:2 }} kr
+                Price: {{ item.price_at_time }} kr
             </li>
         {% endfor %}
+
+       
+        <h3>Drinks:</h3>
+        {% if order_drinks %}
+        <ul>
+            {% for item in order_drinks %}
+                <li>{{ item.quantity }}x {{ item.drink.name }} - {{ item.price_at_time }} kr</li>
+            {% endfor %}
+        </ul>
+    {% endif %}    
+    
     </ul>
     <p><strong>Total: {{ total }} kr</strong></p>
 {% else %}

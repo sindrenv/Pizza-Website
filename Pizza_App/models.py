@@ -18,7 +18,23 @@ class Customer(models.Model):
 
     def __str__(self):
         return self.name
+    
+class Drink(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True, null=True)
+    price = models.DecimalField(max_digits=6, decimal_places=2)
 
+    def __str__(self):
+        return f"{self.name} - {self.price} kr"
+    
+class OrderDrink(models.Model):
+    order = models.ForeignKey('Order', related_name='order_drinks', on_delete=models.CASCADE)
+    drink = models.ForeignKey(Drink, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    price_at_time = models.DecimalField(max_digits=6, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.quantity}x {self.drink.name}"
 
 class Pizza(models.Model):
     name = models.CharField(max_length=100)
@@ -67,8 +83,9 @@ class Order(models.Model):
         return f"Order #{self.id} - {self.customer.name} - {self.get_status_display()}"
    
     def calculate_total(self):
-        total = sum(item.price_at_time * item.quantity for item in self.order_pizzas.all())
-        self.total = total
+        pizzas_total = sum(item.price_at_time * item.quantity for item in self.order_pizzas.all())
+        drinks_total = sum(drink.price_at_time * drink.quantity for drink in self.order_drinks.all())
+        self.total = pizzas_total + drinks_total
         self.save()
 
 

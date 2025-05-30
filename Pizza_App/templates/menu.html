@@ -87,6 +87,13 @@
     {% endfor %}
 </div>
 
+<h3>Drinks</h3>
+<ul>
+    {% for drink in drinks %}
+        <li>{{ drink.name }} - {{ drink.price }} kr</li>
+    {% endfor %}
+</ul>
+
 <a href="{% url 'order' %}"class="cta-button">Order Now</a>
 
 <style>

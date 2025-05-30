@@ -83,7 +83,7 @@
 </header>
 
 <div class="cart-container">
-    {% if cart %}
+    {% if cart or cart_drinks %}
         {% for item in cart %}
             <div class="cart-item">
                 <strong>{{ item.pizza_name }}</strong> ({{ item.size_label }})<br>
@@ -92,6 +92,18 @@
                 Subtotal: kr{{ item.price|floatformat:2|add:item.quantity|floatformat:2 }}
             </div>
         {% endfor %}
+
+        {% if cart_drinks %}
+            <h3>Drinks</h3>
+            {% for drink in cart_drinks %}
+                <div class="cart-item">
+                    <strong>{{ drink.name }}</strong><br>
+                    Quantity: {{ drink.quantity }}<br>
+                    Price: kr{{ drink.price }}<br>
+                    Subtotal: kr{{ drink.price|floatformat:2|add:drink.quantity|floatformat:2 }}
+                </div>
+            {% endfor %}
+        {% endif %}
 
         <p class="total">Total: kr{{ total }}</p>
 
