@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>La Pizzería - Home</title>
+    {% load static %}
     <style>
         body {
             display: flex;
@@ -16,49 +17,45 @@
             background: url("/media/pizzas/background.jpg") no-repeat center center fixed;
             background-size: cover;
         }
-    
+
         header {
             background-color: #E63946;
             color: white;
             padding: 20px;
             text-align: center;
         }
-    
+
         nav {
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 45px;
             margin: 20px 0;
         }
-    
-        nav a {
-            text-decoration: none;
-            color: #2D2D2D;
-            font-weight: bold;
-        }
-    
-            .nav-link-button {
-        background: none;
-        border: none;
-        color: #2D2D2D;
-        font-weight: bold;
-        font-family: inherit;
-        font-size: inherit;
-        cursor: pointer;
-        padding: 0;
-        text-decoration: none;
-          }
 
-    
-        .nav-link-button:hover {
-            text-decoration: underline;
+        nav img {
+            width: 48px;   
+            height: 48px;  
+            vertical-align: middle;
+            transition: opacity 0.3s;
         }
-    
+
+
+        nav img:hover {
+            opacity: 0.7;
+        }
+
+        .nav-link-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+
         section {
             padding: 20px;
             text-align: center;
         }
-    
+
         .cta-button {
             display: inline-block;
             padding: 10px 20px;
@@ -68,11 +65,11 @@
             border-radius: 5px;
             margin-top: 20px;
         }
-    
+
         .cta-button:hover {
             background-color: #5A9E64;
         }
-    
+
         footer {
             background-color: #E63946;
             color: white;
@@ -83,39 +80,50 @@
             width: 100%;
             margin-top: auto;
         }
+
         .overlay-box {
-            background-color: rgba(255, 255, 255, 0.8); /* Blanco con 80% opacidad */
+            background-color: rgba(255, 255, 255, 0.8);
             padding: 20px;
             border-radius: 10px;
             max-width: 600px;
             margin: auto;
             color: #000;
         }
-
-        
     </style>
-    </head>
+</head>
 <body>
     <header>
         <h1>Welcome to the Pizzería!</h1>
         <p>The best pizzas in the city</p>
 
         <nav>
-            <a href="{% url 'menu' %}">Menu</a>
-            <a href="{% url 'order' %}">Order</a>
-            <a href="{% url 'about' %}">About us</a>
-        
+            <a href="{% url 'menu' %}">
+                <img src="media/icons/Menu icon.png" alt="Menu">
+            </a>
+            <a href="{% url 'order' %}">
+                <img src="media/icons/Order Icon 2. juni 2025, 16_15_46.png" alt="Order">
+            </a>
+            <a href="{% url 'about' %}">
+                <img src="media/icons/About us Icon 2. juni 2025, 16_28_16.png" alt="About Us">
+            </a>
+
             {% if user.is_authenticated %}
-                <a href="{% url 'my_page' %}">My Page</a>
-        
+                <a href="{% url 'my_page' %}">
+                    <img src="media/icons/My page : Login Icon 2. juni 2025, 16_13_56.png" alt="My Page">
+                </a>
                 <form method="post" action="{% url 'logout' %}" style="display:inline;">
                     {% csrf_token %}
-                    <button type="submit" class="nav-link-button">Logout</button>
+                    <button type="submit" class="nav-link-button">
+                        <img src="media/icons/Logout Icon.png" alt="Logout">
+                    </button>
                 </form>
-                
             {% else %}
-                <a href="{% url 'login' %}">Login</a>
-                <a href="{% url 'register' %}">Register</a>
+                <a href="{% url 'register' %}">
+                    <img src="media/icons/Register Icon.png" alt="Register">
+                </a>
+                <a href="{% url 'login' %}">
+                    <img src="media/icons/Login Icon.png" alt="Login">
+                </a>
             {% endif %}
         </nav>
     </header>
@@ -123,15 +131,15 @@
     {% if user.is_authenticated %}
       <section>
         <div class="overlay-box">
-        <h2>Hello, {{ user.username }}! 🍕</h2>
-        <p>Check out your previous orders, or order your next pizza now!</p>
+          <h2>Hello, {{ user.username }}! 🍕</h2>
+          <p>Check out your previous orders, or order your next pizza now!</p>
         </div>
         <a href="{% url 'order' %}" class="cta-button">Make your order</a>
       </section>
     {% else %}
       <section>
         <div class="overlay-box">
-        <h2>Welcome to our pizzeria 🍕</h2>
+          <h2>Welcome to our pizzeria 🍕</h2>
         </div>
       </section>
     {% endif %}

@@ -4,21 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>The Pizzería</title>
+  {% load static %}
   <style>
-    body {
+   
+body {
       margin: 0;
       font-family: 'Arial', sans-serif;
       background-color: #fff5e1;
       color: #2d2d2d;
     }
-
     header {
       background-color: #e63946;
       color: white;
       padding: 20px;
       text-align: center;
     }
-
     nav {
       display: flex;
       justify-content: center;
@@ -26,37 +26,31 @@
       flex-wrap: wrap;
       margin: 10px 0;
     }
-
     nav a {
       text-decoration: none;
       color: white;
       font-weight: bold;
     }
-
     .login-nav a {
       background-color: #6fae75;
       color: white;
       padding: 8px 16px;
       border-radius: 5px;
     }
-
     .main-nav a {
       color: #ffe;
       font-weight: normal;
     }
-
     .pizza-section {
       max-width: 1000px;
       margin: 40px auto;
       padding: 0 20px;
     }
-
     .pizza-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 30px;
     }
-
     .pizza-item {
       background-color: #fff;
       border-radius: 12px;
@@ -65,25 +59,23 @@
       text-align: center;
       transition: transform 0.3s;
     }
-
     .pizza-item:hover {
       transform: scale(1.03);
     }
-
     .pizza-item img {
-      max-width: 100%;
-      border-radius: 8px;
-      margin-bottom: 10px;
+      height: 180px; 
+      width: auto;
+      object-fit: contain; 
+      display: block;
+      margin: 0 auto 10px;
     }
 
     .pizza-item h2 {
       margin: 10px 0 5px;
     }
-
     .pizza-item p {
       margin: 5px 0;
     }
-
     .drinks-section {
       max-width: 600px;
       margin: 40px auto;
@@ -92,25 +84,20 @@
       border-radius: 12px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
     }
-
     .drinks-section h3 {
       margin-bottom: 10px;
     }
-
     .drinks-section ul {
       list-style: none;
       padding: 0;
     }
-
     .drinks-section li {
       padding: 8px 0;
       border-bottom: 1px solid #ddd;
     }
-
     .drinks-section li:last-child {
       border-bottom: none;
     }
-
     .cta-button {
       display: block;
       width: fit-content;
@@ -123,11 +110,9 @@
       border-radius: 8px;
       transition: background-color 0.2s ease;
     }
-
     .cta-button:hover {
       background-color: #5a9963;
     }
-
     footer {
       background-color: #e63946;
       color: white;
@@ -135,7 +120,6 @@
       padding: 12px;
       margin-top: 40px;
     }
-
     @media (max-width: 600px) {
       .pizza-item {
         padding: 15px;
@@ -172,13 +156,51 @@
   </div>
 </section>
 
-<section class="drinks-section">
-  <h3>Drinks</h3>
-  <ul>
-    {% for drink in drinks %}
-      <li>{{ drink.name }} – {{ drink.price }} kr</li>
-    {% endfor %}
-  </ul>
+<section class="pizza-section">
+  <h3 style="text-align:center; margin-bottom: 20px;">Drinks</h3>
+  <div class="pizza-grid">
+    <div class="pizza-item">
+      <img src="/media/drinks/coca_cola.png" alt="Coca Cola">
+      <h2>Coca Cola</h2>
+      <p>Classic cola beverage.</p>
+      <p><strong>kr25</strong></p>
+    </div>
+
+    <div class="pizza-item">
+      <img src="/media/drinks/pepsi_max.png" alt="Pepsi Max">
+      <h2>Pepsi Max</h2>
+      <p>Zero sugar, full taste.</p>
+      <p><strong>kr25</strong></p>
+    </div>
+
+    <div class="pizza-item">
+      <img src="/media/drinks/solo.png" alt="Solo">
+      <h2>Solo</h2>
+      <p>Norwegian orange soda.</p>
+      <p><strong>kr25</strong></p>
+    </div>
+
+    <div class="pizza-item">
+      <img src="/media/drinks/sprite.png" alt="Sprite">
+      <h2>Sprite</h2>
+      <p>Lemon-lime refreshment.</p>
+      <p><strong>kr25</strong></p>
+    </div>
+
+    <div class="pizza-item">
+      <img src="/media/drinks/bonaqua_eple.png" alt="Bonaqua Eple">
+      <h2>Bonaqua Eple</h2>
+      <p>Apple flavored sparkling water.</p>
+      <p><strong>kr25</strong></p>
+    </div>
+
+    <div class="pizza-item">
+      <img src="/media/drinks/imsdal.png" alt="Imsdal">
+      <h2>Imsdal</h2>
+      <p>Pure Norwegian bottled water.</p>
+      <p><strong>kr25</strong></p>
+    </div>
+  </div>
 </section>
 
 <a href="{% url 'order' %}" class="cta-button">Order Now</a>

@@ -1,29 +1,132 @@
-<header>
-  <h1>Our Pizza Menu 🍕</h1>
-  <nav class="login-nav">
-    <a href="{% url 'login' %}">Login</a>
-    <a href="{% url 'register' %}">Register</a>
-  </nav>
-  <nav class="main-nav">
-    <a href="{% url 'home' %}">Home</a>
-    <a href="{% url 'menu' %}">Menu</a>
-    <a href="{% url 'order' %}">Order</a>
-    <a href="#about">About us</a>
-  </nav>
-</header>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>About Us - The Pizzería</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background-color: #FFF5E1;
+      margin: 0;
+      padding: 0;
+      color: #2D2D2D;
+    }
 
-<section id="about" class="about-section">
+    header {
+      background-color: #E63946;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: #2D2D2D;
+      font-weight: bold;
+    }
+
+    .nav-link-button {
+      background: none;
+      border: none;
+      color: #2D2D2D;
+      font-weight: bold;
+      font-family: inherit;
+      font-size: inherit;
+      cursor: pointer;
+      padding: 0;
+      text-decoration: none;
+    }
+
+    .nav-link-button:hover,
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    section.about-section {
+      flex: 1;
+      background-color: #fff;
+      padding: 60px 20px;
+      color: #2d2d2d;
+      font-size: 18px;
+      line-height: 1.6;
+    }
+
+    .about-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #fff8ec;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    .about-container h2 {
+      text-align: center;
+      font-size: 32px;
+      margin-bottom: 20px;
+      color: #e63946;
+    }
+
+    .about-container p {
+      margin-bottom: 15px;
+    }
+
+    footer {
+      background-color: #E63946;
+      color: white;
+      text-align: center;
+      padding: 10px;
+      position: relative;
+      bottom: 0;
+      width: 100%;
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>About The Pizzería 🍕</h1>
+    <nav>
+      <a href="{% url 'home' %}">Home</a>
+      <a href="{% url 'menu' %}">Menu</a>
+      <a href="{% url 'order' %}">Order</a>
+      <a href="#about">About Us</a>
+
+      {% if user.is_authenticated %}
+        <a href="{% url 'my_page' %}">My Page</a>
+        <form method="post" action="{% url 'logout' %}" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="nav-link-button">Logout</button>
+        </form>
+      {% else %}
+        <a href="{% url 'login' %}">Login</a>
+        <a href="{% url 'register' %}">Register</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <section id="about" class="about-section">
     <div class="about-container">
       <h2>About Us</h2>
       <p>
         Welcome to <strong>The Pizzería</strong> – where tradition meets flavor.
       </p>
       <p>
-        Born from a love of authentic Italian cuisine, The Pizzería was founded with a single mission: 
+        Born from a love of authentic Italian cuisine, The Pizzería was founded with a single mission:
         to bring the rich, bold, and comforting flavors of real pizza to your table.
       </p>
       <p>
-        We use only the finest ingredients – hand-picked tomatoes, fresh herbs, and artisanal cheeses – 
+        We use only the finest ingredients – hand-picked tomatoes, fresh herbs, and artisanal cheeses –
         baked to perfection in our traditional stone oven.
       </p>
       <p>
@@ -34,41 +137,13 @@
       </p>
     </div>
   </section>
-  
-  <style>
-     header {
-      background-color: #e63946;
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
-    
-    .about-section {
-      background-color: #fff;
-      padding: 60px 20px;
-      color: #2d2d2d;
-      font-size: 18px;
-      line-height: 1.6;
-    }
-  
-    .about-container {
-      max-width: 800px;
-      margin: 0 auto;
-      background-color: #fff5e1;
-      padding: 40px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-    }
-  
-    .about-container h2 {
-      text-align: center;
-      font-size: 32px;
-      margin-bottom: 20px;
-      color: #e63946;
-    }
-  
-    .about-container p {
-      margin-bottom: 15px;
-    }
-  </style>
-  
+
+  <footer>
+    <h2>Contact</h2>
+    <p>📍 Address: Pizza 123, Oslo</p>
+    <p>📞 Phone: 123-456-789</p>
+    <p>📧 Email: contact@lapizzeria.com</p>
+    <p>&copy; 2025 La Pizzería.</p>
+  </footer>
+</body>
+</html>
