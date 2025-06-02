@@ -26,13 +26,17 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('menu/', views.menu, name='menu'),
     path('order/', views.order, name='order'),
-    path('confirmation/<int:order_id>/', views.order_confirmation, name='confirmation'),
+    path('about/', views.about_us, name='about'),    
+    path('confirmation/<int:order_id>/', views.order_confirmation, name='order_confirmation'),
 
     path('login/', views.login_view, name='login'),
     path('register/', views.register_view, name='register'),
     path('logout/', auth_views.LogoutView.as_view(next_page='home'), name='logout'),
 
     path('my-page/', views.my_page, name='my_page'),
+    path('reorder/<int:order_id>/', views.reorder, name='reorder'),
+    path('order/confirmation/<int:order_id>/', views.order_confirmation, name='order_confirmation'),
+    
 
     # 🛒 Shopping Cart URLs
     path('add-to-cart/', views.add_to_cart, name='add_to_cart'),

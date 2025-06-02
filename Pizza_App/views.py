@@ -2,23 +2,37 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.template.loader import render_to_string
 from django.urls import reverse
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from .models import Pizza, Order, Customer, OrderPizza, PizzaSize, Topping, OrderPizzaTopping
+from .models import Pizza, Order, Customer, OrderPizza, PizzaSize, Topping, OrderPizzaTopping, Drink, OrderDrink
 
 
 def home(request):
     return render(request, 'Pizza_App/home.html')
 
+def about_us(request):
+    return render (request, 'aboutus.html')
+
 
 def menu(request):
     pizzas = Pizza.objects.all()
-    return render(request, 'menu.html', {'pizzas': pizzas})
-
+    sizes = PizzaSize.objects.all()
+    toppings = Topping.objects.all()
+    drinks = Drink.objects.all() 
+    
+    return render(request, 'menu.html', {
+        'pizzas': pizzas,
+        'sizes': sizes,
+        'toppings': toppings,
+        'drinks': drinks 
+    })
 
 def order(request):
     pizzas = Pizza.objects.all()
     toppings = Topping.objects.all()
+    drinks = Drink.objects.all()
 
     if request.method == "POST":
         customer_name = request.POST['name']
@@ -67,20 +81,57 @@ def order(request):
                     total += price * quantity
                     print(f"Added {quantity}x {pizza.name} to order {order.id}")
 
+            for drink in Drink.objects.all():
+                 if f"drink_selected_{drink.id}" in request.POST:
+                    qty = int(request.POST.get(f"drink_quantity_{drink.id}", 1))
+                    if qty > 0:
+                        OrderDrink.objects.create(order=order, drink=drink, quantity=qty)
+                        total += drink.price * qty
+
         order.total = total
         order.save()
 
         return render(request, 'confirmation.html', {
             'customer': customer,
             'order_items': order.orderpizza_set.all(),
+            'order_drinks': order.orderdrink_set.all(),
             'total': total
         })
 
-    return render(request, 'order.html', {'pizzas': pizzas, 'toppings': toppings})
+    return render(request, 'order.html', {'pizzas': pizzas, 'toppings': toppings, 'drinks' : drinks})
 
 
 def add_to_cart(request):
     if request.method == 'POST':
+        if 'drink_id' in request.POST:
+            drink_id = request.POST.get('drink_id')
+            quantity = int(request.POST.get('quantity', 1))
+
+            try:
+                drink = Drink.objects.get(id=drink_id)
+            except Drink.DoesNotExist:
+                messages.error(request, "Drink not found.")
+                return redirect('order')
+
+            cart_drinks = request.session.get('cart_drinks', [])
+
+            for item in cart_drinks:
+                if item['drink_id'] == drink.id:
+                    item['quantity'] += quantity
+                    break
+            else:
+                cart_drinks.append({
+                    'drink_id': drink.id,
+                    'name': drink.name,
+                    'price': float(drink.price),
+                    'quantity': quantity,
+                })
+
+            request.session['cart_drinks'] = cart_drinks
+            messages.success(request, f"🥤 {drink.name} added to cart!")
+            return redirect('order')
+        
+    
         pizza_id = request.POST.get('pizza_id')
         size_id = request.POST.get('size_id')
         quantity = int(request.POST.get('quantity'))
@@ -107,7 +158,7 @@ def add_to_cart(request):
         cart.append(item)
         request.session['cart'] = cart
 
-        messages.success(request, "🍕 Pizza added to cart!")
+        messages.success(request, f"🍕 {pizza_size.pizza.name} added to cart!")
         return redirect('order')
 
     return redirect('menu')
@@ -115,12 +166,44 @@ def add_to_cart(request):
 
 def view_cart(request):
     cart = request.session.get('cart', [])
-    total = sum(item['price'] * item['quantity'] for item in cart)
-    return render(request, 'cart.html', {'cart': cart, 'total': total})
+    cart_drinks = request.session.get('cart_drinks', [])
 
+    total = sum(item['price'] * item['quantity'] for item in cart)
+    total += sum(drink['price'] * drink['quantity'] for drink in cart_drinks)
+
+    return render(request, 'cart.html', {
+        'cart': cart,
+        'cart_drinks': cart_drinks,
+        'total': total
+    })
+
+def add_drink_to_cart(request):
+    if request.method == 'POST':
+        drink_id = request.POST.get('drink_id')
+        quantity = int(request.POST.get('quantity', 1))
+        drink = get_object_or_404(Drink, id=drink_id)
+
+        cart_drinks = request.session.get('cart_drinks', [])
+        
+        for d in cart_drinks:
+            if d['id'] == drink.id:
+                d['quantity'] += quantity
+                break
+        else:
+            cart_drinks.append({
+                'id': drink.id,
+                'name': drink.name,
+                'price': float(drink.price),
+                'quantity': quantity
+            })
+
+        request.session['cart_drinks'] = cart_drinks
+        messages.success(request, f"🥤 {drink.name} added to cart!")
+        return redirect('view_cart')
 
 def clear_cart(request):
     request.session['cart'] = []
+    request.session ['cart_drinks'] = []
     return redirect('view_cart')
 
 
@@ -172,13 +255,36 @@ def checkout(request):
 
 def order_confirmation(request, order_id):
     order = get_object_or_404(Order, id=order_id)
-    order_items = order.orderpizza_set.select_related('pizza').all()
-    total = sum(item.price_at_time * item.quantity for item in order_items)
+    order_items = order.order_pizzas.select_related('pizza', 'size').prefetch_related('toppings')
+    order_drinks = order.order_drinks.select_related('drink')
+    total = 0
+    for item in order_items:
+        base_price = item.price_at_time
+        toppings_price = sum(topping.price for topping in item.toppings.all())
+        item.total_price = (base_price + toppings_price) * item.quantity
+        total += item.total_price
 
     return render(request, 'confirmation.html', {
         'order': order,
         'order_items': order_items,
+        'order_drinks': order_drinks,
         'total': total,
+        'customer': order.customer,
+    })
+
+    if order.customer.email:
+        send_mail(
+            f"Order #{order.id} Confirmation",
+            message,
+            "noreply@pizzashop.com",  # From email (puedes cambiarlo)
+            [order.customer.email],
+            fail_silently=True  # No romper si hay error
+        )
+
+    return render(request, 'confirmation.html', {
+        'order': order,
+        'order_items': items,
+        'total': order.total,
         'customer': order.customer,
     })
 
@@ -231,7 +337,12 @@ def login_view(request):
 def my_page(request):
     try:
         customer = request.user.customer_profile
-        orders = Order.objects.filter(customer=customer).order_by('-created_at')
+        orders = Order.objects.filter(customer=customer).prefetch_related(
+            'order_pizzas__pizza',
+            'order_pizzas__size',
+            'order_pizzas__toppings'
+        ).order_by('-created_at')    
+    
     except Customer.DoesNotExist:
         customer = None
         orders = []
@@ -241,3 +352,44 @@ def my_page(request):
         'customer': customer,
         'user': request.user
     })
+
+@login_required
+def reorder(request, order_id):
+    try:
+        customer_profile = request.user.customer_profile
+    except Customer.DoesNotExist:
+        messages.error(request, "You don't have a customer profile.")
+        return redirect('my_page')
+
+    original_order = get_object_or_404(Order, id=order_id, customer=customer_profile)
+
+    # Create a new order
+    new_order = Order.objects.create(
+        customer=customer_profile,
+        total=0,
+        status='PENDING'
+    )
+
+    # Copy each pizza from original order
+    for item in original_order.order_pizzas.all():
+        new_item = OrderPizza.objects.create(
+            order=new_order,
+            pizza=item.pizza,
+            quantity=item.quantity,
+            size=item.size,
+            price_at_time=item.price_at_time,
+            special_instructions=item.special_instructions
+        )
+
+        # Copy toppings
+        for topping in item.toppings.all():
+            OrderPizzaTopping.objects.create(
+                order_pizza=new_item,
+                topping=topping
+            )
+
+    # Recalculate total
+    new_order.calculate_total()
+
+    messages.success(request, f"Order #{original_order.id} reordered successfully.")
+    return redirect('order_confirmation', order_id=new_order.id)

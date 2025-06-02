@@ -1,0 +1,74 @@
+<header>
+  <h1>Our Pizza Menu 🍕</h1>
+  <nav class="login-nav">
+    <a href="{% url 'login' %}">Login</a>
+    <a href="{% url 'register' %}">Register</a>
+  </nav>
+  <nav class="main-nav">
+    <a href="{% url 'home' %}">Home</a>
+    <a href="{% url 'menu' %}">Menu</a>
+    <a href="{% url 'order' %}">Order</a>
+    <a href="#about">About us</a>
+  </nav>
+</header>
+
+<section id="about" class="about-section">
+    <div class="about-container">
+      <h2>About Us</h2>
+      <p>
+        Welcome to <strong>The Pizzería</strong> – where tradition meets flavor.
+      </p>
+      <p>
+        Born from a love of authentic Italian cuisine, The Pizzería was founded with a single mission: 
+        to bring the rich, bold, and comforting flavors of real pizza to your table.
+      </p>
+      <p>
+        We use only the finest ingredients – hand-picked tomatoes, fresh herbs, and artisanal cheeses – 
+        baked to perfection in our traditional stone oven.
+      </p>
+      <p>
+        Whether you're sharing a slice with family or grabbing a quick lunch, every pizza is made with care and passion.
+      </p>
+      <p>
+        <em>Thank you for making us part of your story. We’re proud to serve you!</em>
+      </p>
+    </div>
+  </section>
+  
+  <style>
+     header {
+      background-color: #e63946;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .about-section {
+      background-color: #fff;
+      padding: 60px 20px;
+      color: #2d2d2d;
+      font-size: 18px;
+      line-height: 1.6;
+    }
+  
+    .about-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #fff5e1;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    }
+  
+    .about-container h2 {
+      text-align: center;
+      font-size: 32px;
+      margin-bottom: 20px;
+      color: #e63946;
+    }
+  
+    .about-container p {
+      margin-bottom: 15px;
+    }
+  </style>
+  
