@@ -108,7 +108,7 @@ def add_to_cart(request):
 
     if request.method == 'POST':
 
-        # 🥤 Handle drinks
+        # Drinks
         if 'drink_id' in request.POST:
             drink_id = request.POST.get('drink_id')
             quantity = int(request.POST.get('quantity', 1))
@@ -136,7 +136,7 @@ def add_to_cart(request):
             messages.success(request, f"🥤 {drink.name} added to cart!")
             return redirect('order')
 
-        # 🍕 Handle pizzas
+        # Pizza
         if 'pizza_id' in request.POST and 'size_id' in request.POST:
             pizza_id = request.POST.get('pizza_id')
             size_id = request.POST.get('size_id')
@@ -274,11 +274,20 @@ def checkout(request):
         request.session['cart'] = []
         request.session['cart_drinks'] = []
 
-        # Send confirmation email
+        # Prepare data for email
+        order_items = order.order_pizzas.select_related('pizza', 'size').prefetch_related('toppings')
+        order_drinks = order.order_drinks.select_related('drink')
+
+        for item in order_items:
+            item.total_price = item.price_at_time * item.quantity
+
+        for drink in order_drinks:
+            drink.total_price = drink.price_at_time * drink.quantity
+
         email_context = {
             'order': order,
-            'order_items': order.order_pizzas.select_related('pizza', 'size').prefetch_related('toppings'),
-            'order_drinks': order.order_drinks.select_related('drink'),
+            'order_items': order_items,
+            'order_drinks': order_drinks,
             'total': order.total,
             'customer': customer,
         }
@@ -447,12 +456,12 @@ def reorder(request, order_id):
             special_instructions=item.special_instructions
         )
 
-        # Copy toppings
-        for topping in item.toppings.all():
-            OrderPizzaTopping.objects.create(
-                order_pizza=new_item,
-                topping=topping
-            )
+    # Copy toppings
+    for topping in item.toppings.all():
+        OrderPizzaTopping.objects.create(
+            order_pizza=new_item,
+            topping=topping
+        )
 
     # Copy drinks
     for drink_item in original_order.order_drinks.all():

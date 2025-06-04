@@ -1,0 +1,21 @@
+Hi {{ customer.name }},
+
+Thanks for your order! Here is a summary:
+
+{% for item in order_items %}
+- {{ item.quantity }}x {{ item.pizza.name }} ({{ item.size.get_size_display }}) = {{ item.total_price|floatformat:2 }} kr
+{% endfor %}
+
+{% if order_drinks %}
+Drinks:
+{% for drink in order_drinks %}
+- {{ drink.quantity }}x {{ drink.drink.name }} = {{ drink.total_price|floatformat:2 }} kr
+{% endfor %}
+{% endif %}
+
+Total: {{ total|floatformat:2 }} kr
+
+We’ll get started right away!
+
+Regards,  
+La Pizzería

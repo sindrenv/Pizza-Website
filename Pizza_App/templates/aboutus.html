@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,9 +10,13 @@
       flex-direction: column;
       min-height: 100vh;
       font-family: Arial, sans-serif;
-      background-color: #FFF5E1;
       margin: 0;
       padding: 0;
+      background-image: url("/media/pizzas/dough.jpg");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
       color: #2D2D2D;
     }
 
@@ -23,52 +28,48 @@
     }
 
     nav {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 40px;
-  margin: 20px 0;
-}
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 40px;
+      margin: 20px 0;
+    }
 
-nav a,
-nav form {
-  display: inline-block;
-}
+    nav a,
+    nav form {
+      display: inline-block;
+    }
 
-nav img {
-  width: 48px;
-  height: 48px;
-  object-fit: contain;
-  vertical-align: middle;
-  transition: opacity 0.25s ease;
-}
+    nav img {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      vertical-align: middle;
+      transition: opacity 0.25s ease;
+    }
 
-nav img:hover {
-  opacity: 0.7;
-}
+    nav img:hover {
+      opacity: 0.7;
+    }
 
-.nav-link-button {
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-  cursor: pointer;
-}
+    .nav-link-button {
+      background: none;
+      border: none;
+      padding: 0;
+      margin: 0;
+      cursor: pointer;
+    }
 
-    section.about-section {
+    .about-section {
       flex: 1;
-      background-color: #fff;
       padding: 60px 20px;
-      color: #2d2d2d;
-      font-size: 18px;
-      line-height: 1.6;
     }
 
     .about-container {
       max-width: 800px;
       margin: 0 auto;
-      background-color: #fff8ec;
+      background-color: rgba(255, 248, 236, 0.95);
       padding: 40px;
       border-radius: 12px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
@@ -90,9 +91,6 @@ nav img:hover {
       color: white;
       text-align: center;
       padding: 10px;
-      position: relative;
-      bottom: 0;
-      width: 100%;
       margin-top: auto;
     }
   </style>
@@ -110,14 +108,13 @@ nav img:hover {
       <a href="{% url 'about' %}">
         <img src="/media/icons/About us Icon 2. juni 2025, 16_28_16.png" alt="About Us">
       </a>
-  
       {% if user.is_authenticated %}
         <a href="{% url 'my_page' %}">
           <img src="/media/icons/My page : Login Icon 2. juni 2025, 16_13_56.png" alt="My Page">
         </a>
         <form method="post" action="{% url 'logout' %}" style="display:inline;">
           {% csrf_token %}
-          <button type="submit" class="nav-link-button" style="background: none; border: none;">
+          <button type="submit" class="nav-link-button">
             <img src="/media/icons/Logout Icon.png" alt="Logout">
           </button>
         </form>
@@ -130,28 +127,18 @@ nav img:hover {
         </a>
       {% endif %}
     </nav>
-    </header>
+  </header>
 
-  <section id="about" class="about-section">
+  <section class="about-section">
     <div class="about-container">
       <h2>About us</h2>
-      <p>
-        Welcome to <strong>The Pizzeria</strong> – where tradition meets flavor.
-      </p>
-      <p>
-        Born from a love of authentic Italian cuisine, The Pizzería was founded with a single mission:
-        to bring the rich, bold, and comforting flavors of real pizza to your table.
-      </p>
-      <p>
-        We use only the finest ingredients – hand-picked tomatoes, fresh herbs, and artisanal cheeses –
-        baked to perfection in our traditional stone oven.
-      </p>
-      <p>
-        Whether you're sharing a slice with family or grabbing a quick lunch, every pizza is made with care and passion.
-      </p>
-      <p>
-        <em>Thank you for making us part of your story. We’re proud to serve you!</em>
-      </p>
+      <p><strong>The Pizzeria</strong> – where tradition meets flavor.</p>
+      <p>Born from a love of authentic Italian cuisine, The Pizzería was founded with a single mission:
+        to bring the rich, bold, and comforting flavors of real pizza to your table.</p>
+      <p>We use only the finest ingredients – hand-picked tomatoes, fresh herbs, and artisanal cheeses –
+        baked to perfection in our traditional stone oven.</p>
+      <p>Whether you're sharing a slice with family or grabbing a quick lunch, every pizza is made with care and passion.</p>
+      <p><em>Thank you for making us part of your story. We’re proud to serve you!</em></p>
     </div>
   </section>
 
