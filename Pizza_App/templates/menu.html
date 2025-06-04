@@ -19,28 +19,40 @@ body {
       padding: 20px;
       text-align: center;
     }
-    nav {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      flex-wrap: wrap;
-      margin: 10px 0;
-    }
-    nav a {
-      text-decoration: none;
-      color: white;
-      font-weight: bold;
-    }
-    .login-nav a {
-      background-color: #6fae75;
-      color: white;
-      padding: 8px 16px;
-      border-radius: 5px;
-    }
-    .main-nav a {
-      color: #ffe;
-      font-weight: normal;
-    }
+
+nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 40px;
+  margin: 20px 0;
+}
+
+nav a,
+nav form {
+  display: inline-block;
+}
+
+nav img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  vertical-align: middle;
+  transition: opacity 0.25s ease;
+}
+
+nav img:hover {
+  opacity: 0.7;
+}
+
+.nav-link-button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+}
     .pizza-section {
       max-width: 1000px;
       margin: 40px auto;
@@ -130,18 +142,40 @@ body {
 <body>
 
 <header>
-  <h1>Our Pizza Menu 🍕</h1>
-  <nav class="login-nav">
-    <a href="{% url 'login' %}">Login</a>
-    <a href="{% url 'register' %}">Register</a>
-  </nav>
-  <nav class="main-nav">
-    <a href="{% url 'home' %}">Home</a>
-    <a href="{% url 'menu' %}">Menu</a>
-    <a href="{% url 'order' %}">Order</a>
-    <a href="#about">About us</a>
+  <h1><a href="{% url 'home' %}" style="color: white; text-decoration: none;">The Pizzeria</a></h1>
+  <nav>
+    <a href="{% url 'menu' %}">
+      <img src="/media/icons/Menu icon.png" alt="Menu">
+    </a>
+    <a href="{% url 'order' %}">
+      <img src="/media/icons/Order Icon 2. juni 2025, 16_15_46.png" alt="Order">
+    </a>
+    <a href="{% url 'about' %}">
+      <img src="/media/icons/About us Icon 2. juni 2025, 16_28_16.png" alt="About Us">
+    </a>
+
+    {% if user.is_authenticated %}
+      <a href="{% url 'my_page' %}">
+        <img src="/media/icons/My page : Login Icon 2. juni 2025, 16_13_56.png" alt="My Page">
+      </a>
+      <form method="post" action="{% url 'logout' %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="nav-link-button" style="background: none; border: none;">
+          <img src="/media/icons/Logout Icon.png" alt="Logout">
+        </button>
+      </form>
+    {% else %}
+      <a href="{% url 'register' %}">
+        <img src="/media/icons/Register Icon.png" alt="Register">
+      </a>
+      <a href="{% url 'login' %}">
+        <img src="/media/icons/Login Icon.png" alt="Login">
+      </a>
+    {% endif %}
   </nav>
 </header>
+
+  <h2 style="text-align: center; margin-top: 30px; color: #e63946;">Our Menu</h2>
 
 <section class="pizza-section">
   <div class="pizza-grid">
@@ -150,7 +184,7 @@ body {
         <img src="{{ pizza.image.url }}" alt="{{ pizza.name }}">
         <h2>{{ pizza.name }}</h2>
         <p>{{ pizza.description }}</p>
-        <p><strong>${{ pizza.price }}</strong></p>
+        <p><strong>From kr{{ pizza.sizes.first.price|floatformat:0 }}</strong></p>
       </div>
     {% endfor %}
   </div>

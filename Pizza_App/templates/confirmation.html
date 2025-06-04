@@ -25,7 +25,7 @@
             color: #e63946;
         }
 
-        h2 {
+        h2, h3 {
             margin-top: 30px;
             color: #333;
         }
@@ -64,46 +64,39 @@
 </head>
 <body>
     <div class="container">
-        
-        <h2>Your Order:</h2>
+        <h1>Order Confirmation</h1>
 
         {% if order_items %}
-    <ul>
-        {% for item in order_items %}
-            <li>
-                {{ item.quantity }}x {{ item.pizza.name }} — {{ item.price_at_time|floatformat:2 }} kr
-                {% if item.size %} ({{ item.size.name }}) {% endif %}  
-                <br>
-                Toppings:
-                {% if item.toppings.all %}
-                    {% for topping in item.toppings.all %}
-                        {{ topping.name }}{% if not forloop.last %}, {% endif %}
-                    {% endfor %}
-                {% else %}
-                    None
-                {% endif %}
-                <br>
-                Price: {{ item.price_at_time }} kr
-            </li>
-        {% endfor %}
+            <h3>Pizzas:</h3>
+            <ul>
+                {% for item in order_items %}
+                    <li>
+                        {{ item.quantity }}x {{ item.pizza.name }} — {{ item.price_at_time|floatformat:2 }} kr
+                        {% if item.size %} ({{ item.size.name }}) {% endif %}  
+                        <br>
+                        Toppings:
+                        {% if item.toppings.all %}
+                            {% for topping in item.toppings.all %}
+                                {{ topping.name }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            None
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
 
-       
-        <h3>Drinks:</h3>
         {% if order_drinks %}
-        <ul>
-            {% for item in order_drinks %}
-                <li>{{ item.quantity }}x {{ item.drink.name }} - {{ item.price_at_time }} kr</li>
-            {% endfor %}
-        </ul>
-    {% endif %}    
-    
-    </ul>
-    <p><strong>Total: {{ total }} kr</strong></p>
-{% else %}
-    <p>No items in your order.</p>
-{% endif %}
+            <h3>Drinks:</h3>
+            <ul>
+                {% for item in order_drinks %}
+                    <li>{{ item.quantity }}x {{ item.drink.name }} – {{ item.price_at_time }} kr</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
 
-        <p class="total">Total: ${{ total }}</p>
+        <p class="total">Total: {{ total }} kr</p>
 
         <a href="/">Back to Home</a>
     </div>

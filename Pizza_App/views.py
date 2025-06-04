@@ -7,6 +7,8 @@ from django.urls import reverse
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from .models import Pizza, Order, Customer, OrderPizza, PizzaSize, Topping, OrderPizzaTopping, Drink, OrderDrink
+from django.views.decorators.http import require_POST
+from django.core.mail import send_mail
 
 
 def home(request):
@@ -102,7 +104,11 @@ def order(request):
 
 
 def add_to_cart(request):
+    print("POST drink_id:", request.POST.get("drink_id"))
+
     if request.method == 'POST':
+
+        # 🥤 Handle drinks
         if 'drink_id' in request.POST:
             drink_id = request.POST.get('drink_id')
             quantity = int(request.POST.get('quantity', 1))
@@ -114,52 +120,78 @@ def add_to_cart(request):
                 return redirect('order')
 
             cart_drinks = request.session.get('cart_drinks', [])
-
-            for item in cart_drinks:
-                if item['drink_id'] == drink.id:
-                    item['quantity'] += quantity
+            for d in cart_drinks:
+                if d.get('drink_id') == drink.id:
+                    d['quantity'] += quantity
                     break
             else:
                 cart_drinks.append({
-                    'drink_id': drink.id,
+                    'drink_id': drink.id, 
                     'name': drink.name,
                     'price': float(drink.price),
-                    'quantity': quantity,
+                    'quantity': quantity
                 })
 
             request.session['cart_drinks'] = cart_drinks
             messages.success(request, f"🥤 {drink.name} added to cart!")
             return redirect('order')
-        
-    
-        pizza_id = request.POST.get('pizza_id')
-        size_id = request.POST.get('size_id')
-        quantity = int(request.POST.get('quantity'))
-        topping_ids = request.POST.getlist('toppings')
-        instructions = request.POST.get('instructions', '')
 
-        pizza_size = PizzaSize.objects.get(id=size_id)
-        selected_toppings = Topping.objects.filter(id__in=topping_ids)
-        toppings_list = [{'id': t.id, 'name': t.name, 'price': float(t.price)} for t in selected_toppings]
-        toppings_total = sum(t['price'] for t in toppings_list)
+        # 🍕 Handle pizzas
+        if 'pizza_id' in request.POST and 'size_id' in request.POST:
+            pizza_id = request.POST.get('pizza_id')
+            size_id = request.POST.get('size_id')
+            quantity = int(request.POST.get('quantity'))
+            topping_ids = request.POST.getlist('toppings')
+            instructions = request.POST.get('instructions', '')
 
-        item = {
-            'pizza_id': pizza_id,
-            'pizza_name': pizza_size.pizza.name,
-            'size_id': size_id,
-            'size_label': pizza_size.get_size_display(),
-            'price': float(pizza_size.price) + toppings_total,
-            'toppings': toppings_list,
-            'quantity': quantity,
-            'instructions': instructions
-        }
+            try:
+                pizza_size = PizzaSize.objects.get(id=size_id)
+            except PizzaSize.DoesNotExist:
+                messages.error(request, "Pizza size not found.")
+                return redirect('order')
 
-        cart = request.session.get('cart', [])
-        cart.append(item)
-        request.session['cart'] = cart
+            # Set topping price based on size
+            size_label = pizza_size.get_size_display()
+            if size_label == "Small":
+                topping_price = 10
+            elif size_label == "Medium":
+                topping_price = 20
+            elif size_label == "Large":
+                topping_price = 30
+            else:
+                topping_price = 10  # default/fallback
 
-        messages.success(request, f"🍕 {pizza_size.pizza.name} added to cart!")
-        return redirect('order')
+            selected_toppings = Topping.objects.filter(id__in=topping_ids)
+            toppings_list = [{'id': t.id, 'name': t.name, 'price': topping_price} for t in selected_toppings]
+            toppings_total = topping_price * len(toppings_list)
+
+            item = {
+                'pizza_id': pizza_id,
+                'pizza_name': pizza_size.pizza.name,
+                'size_id': size_id,
+                'size_label': size_label,
+                'price': float(pizza_size.price) + toppings_total,
+                'toppings': toppings_list,
+                'quantity': quantity,
+                'instructions': instructions
+            }
+
+            cart = request.session.get('cart', [])
+            for existing in cart:
+                if (
+                    existing['pizza_id'] == item['pizza_id'] and
+                    existing['size_id'] == item['size_id'] and
+                    existing['toppings'] == item['toppings'] and
+                    existing['instructions'] == item['instructions']
+                ):
+                    existing['quantity'] += item['quantity']
+                    break
+            else:
+                cart.append(item)
+
+            request.session['cart'] = cart
+            messages.success(request, f"🍕 {pizza_size.pizza.name} added to cart!")
+            return redirect('order')
 
     return redirect('menu')
 
@@ -177,29 +209,6 @@ def view_cart(request):
         'total': total
     })
 
-def add_drink_to_cart(request):
-    if request.method == 'POST':
-        drink_id = request.POST.get('drink_id')
-        quantity = int(request.POST.get('quantity', 1))
-        drink = get_object_or_404(Drink, id=drink_id)
-
-        cart_drinks = request.session.get('cart_drinks', [])
-        
-        for d in cart_drinks:
-            if d['id'] == drink.id:
-                d['quantity'] += quantity
-                break
-        else:
-            cart_drinks.append({
-                'id': drink.id,
-                'name': drink.name,
-                'price': float(drink.price),
-                'quantity': quantity
-            })
-
-        request.session['cart_drinks'] = cart_drinks
-        messages.success(request, f"🥤 {drink.name} added to cart!")
-        return redirect('view_cart')
 
 def clear_cart(request):
     request.session['cart'] = []
@@ -214,6 +223,7 @@ def checkout(request):
         phone = request.POST['phone']
         address = request.POST['address']
         cart = request.session.get('cart', [])
+        cart_drinks = request.session.get('cart_drinks', [])
 
         customer, _ = Customer.objects.get_or_create(
             email=email,
@@ -244,9 +254,44 @@ def checkout(request):
 
             total += price * quantity
 
+        for item in cart_drinks:
+            drink = Drink.objects.get(id=item['drink_id'])
+            quantity = item['quantity']
+            price = item['price']
+
+            OrderDrink.objects.create(
+                order=order,
+                drink=drink,
+                quantity=quantity,
+                price_at_time=price
+            )
+
+            total += price * quantity
+
         order.total = total
         order.save()
+
         request.session['cart'] = []
+        request.session['cart_drinks'] = []
+
+        # Send confirmation email
+        email_context = {
+            'order': order,
+            'order_items': order.order_pizzas.select_related('pizza', 'size').prefetch_related('toppings'),
+            'order_drinks': order.order_drinks.select_related('drink'),
+            'total': order.total,
+            'customer': customer,
+        }
+
+        message = render_to_string('emails/order_confirmation_email.txt', email_context)
+
+        send_mail(
+            subject=f"🍕 Your La Pizzería Order Confirmation (Order #{order.id})",
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[customer.email],
+            fail_silently=False,
+        )
 
         return redirect(reverse('order_confirmation', args=[order.id]))
 
@@ -257,12 +302,9 @@ def order_confirmation(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     order_items = order.order_pizzas.select_related('pizza', 'size').prefetch_related('toppings')
     order_drinks = order.order_drinks.select_related('drink')
-    total = 0
-    for item in order_items:
-        base_price = item.price_at_time
-        toppings_price = sum(topping.price for topping in item.toppings.all())
-        item.total_price = (base_price + toppings_price) * item.quantity
-        total += item.total_price
+
+    total = sum(item.price_at_time * item.quantity for item in order_items)
+    total += sum(drink.price_at_time * drink.quantity for drink in order_drinks)
 
     return render(request, 'confirmation.html', {
         'order': order,
@@ -272,22 +314,65 @@ def order_confirmation(request, order_id):
         'customer': order.customer,
     })
 
-    if order.customer.email:
-        send_mail(
-            f"Order #{order.id} Confirmation",
-            message,
-            "noreply@pizzashop.com",  # From email (puedes cambiarlo)
-            [order.customer.email],
-            fail_silently=True  # No romper si hay error
-        )
 
-    return render(request, 'confirmation.html', {
-        'order': order,
-        'order_items': items,
-        'total': order.total,
-        'customer': order.customer,
-    })
+def remove_pizza_from_cart(request, index):
+    cart = request.session.get('cart', [])
+    if 0 <= index < len(cart):
+        del cart[index]
+        request.session['cart'] = cart
+        messages.success(request, "Pizza removed from cart.")
+    return redirect('view_cart')
 
+
+def remove_drink_from_cart(request, index):
+    cart_drinks = request.session.get('cart_drinks', [])
+    if 0 <= index < len(cart_drinks):
+        del cart_drinks[index]
+        request.session['cart_drinks'] = cart_drinks
+        messages.success(request, "Drink removed from cart.")
+    return redirect('view_cart')
+
+
+@require_POST
+def update_cart_quantity(request):
+    item_type = request.POST.get('type')  # 'pizza' or 'drink'
+    index = int(request.POST.get('index'))
+    quantity = int(request.POST.get('quantity'))
+
+    if quantity < 1:
+        messages.error(request, "Quantity must be at least 1.")
+        return redirect('view_cart')
+
+    if item_type == 'pizza':
+        cart = request.session.get('cart', [])
+        if 0 <= index < len(cart):
+            cart[index]['quantity'] = quantity
+            request.session['cart'] = cart
+    elif item_type == 'drink':
+        cart_drinks = request.session.get('cart_drinks', [])
+        if 0 <= index < len(cart_drinks):
+            cart_drinks[index]['quantity'] = quantity
+            request.session['cart_drinks'] = cart_drinks
+
+    messages.success(request, "Quantity updated.")
+    return redirect('view_cart')
+
+def login_view(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            return redirect(request.GET.get("next", "home"))
+        else:
+            return render(request, "login.html", {
+                "username": username,
+                "error": "Wrong password"
+            })
+
+    return render(request, "login.html")
 
 def register_view(request):
     if request.method == "POST":
@@ -313,25 +398,6 @@ def register_view(request):
         return redirect('home')
 
     return render(request, "register.html")
-
-
-def login_view(request):
-    if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-        user = authenticate(request, username=username, password=password)
-
-        if user is not None:
-            login(request, user)
-            return redirect(request.GET.get("next", "home"))
-        else:
-            return render(request, "login.html", {
-                "username": username,
-                "error": "Wrong password"
-            })
-
-    return render(request, "login.html")
-
 
 @login_required
 def my_page(request):
@@ -387,6 +453,15 @@ def reorder(request, order_id):
                 order_pizza=new_item,
                 topping=topping
             )
+
+    # Copy drinks
+    for drink_item in original_order.order_drinks.all():
+        OrderDrink.objects.create(
+            order=new_order,
+            drink=drink_item.drink,
+            quantity=drink_item.quantity,
+            price_at_time=drink_item.price_at_time
+        )
 
     # Recalculate total
     new_order.calculate_total()

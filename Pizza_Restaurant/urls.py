@@ -38,11 +38,15 @@ urlpatterns = [
     path('order/confirmation/<int:order_id>/', views.order_confirmation, name='order_confirmation'),
     
 
-    # 🛒 Shopping Cart URLs
+    # Shopping Cart
     path('add-to-cart/', views.add_to_cart, name='add_to_cart'),
     path('cart/', views.view_cart, name='view_cart'),
     path('checkout/', views.checkout, name='checkout'),
     path('clear-cart/', views.clear_cart, name='clear_cart'),
+    path('remove-from-cart/pizza/<int:index>/', views.remove_pizza_from_cart, name='remove_pizza_from_cart'),
+    path('remove-from-cart/drink/<int:index>/', views.remove_drink_from_cart, name='remove_drink_from_cart'),
+    path('update-cart-quantity/', views.update_cart_quantity, name='update_cart_quantity'),
+
 ]
 
 # Serve media files during development
