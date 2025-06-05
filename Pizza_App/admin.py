@@ -12,13 +12,11 @@ admin.site.register(PizzaSize)
 admin.site.register(Drink)
 admin.site.register(OrderDrink)
 
-# 🔹 Toppings admin
 @admin.register(Topping)
 class ToppingAdmin(admin.ModelAdmin):
     list_display = ('name', 'price')
 
 
-# 🔹 Inline to show pizzas within an order
 class OrderPizzaInline(admin.TabularInline):
     model = OrderPizza
     extra = 0
@@ -30,7 +28,6 @@ class OrderPizzaInline(admin.TabularInline):
     toppings_display.short_description = "Toppings"
 
 
-# ✅ Main Order admin
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('id', 'customer', 'total', 'created_at', 'status')
@@ -53,7 +50,6 @@ class OrderAdmin(admin.ModelAdmin):
         self.message_user(request, f"{updated} order(s) marked as CANCELLED.")
 
 
-# 🔹 (Optional) Show details of pizzas in orders
 @admin.register(OrderPizza)
 class OrderPizzaAdmin(admin.ModelAdmin):
     list_display = ('order', 'pizza', 'quantity', 'price_at_time', 'special_instructions', 'toppings_display')

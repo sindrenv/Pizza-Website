@@ -223,7 +223,6 @@
                     {% endfor %}
                 </select>
                 
-                 <!-- Extra Toppings -->
                  <label>Toppings:</label>
                  {% for topping in toppings %}
                     <div style="display: inline-flex; align-items: center; gap: 6px; margin-bottom: 4px;">
@@ -232,7 +231,6 @@
                     </div>
                  {% endfor %}
                
-                 <!-- Instructions -->
                  <div style="margin: 1rem 0;">
                     <label for="instructions_{{ pizza.id }}" style="
                       display: block;
@@ -255,7 +253,6 @@
                     "></textarea>
                   </div>
                   
-                 <!-- Quantity -->
                  <label for="quantity_{{ pizza.id }}">Quantity:</label>
                  <input type="number" name="quantity" id="quantity_{{ pizza.id }}" value="1" min="1">
                

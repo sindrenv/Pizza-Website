@@ -38,7 +38,6 @@ urlpatterns = [
     path('order/confirmation/<int:order_id>/', views.order_confirmation, name='order_confirmation'),
     
 
-    # Shopping Cart
     path('add-to-cart/', views.add_to_cart, name='add_to_cart'),
     path('cart/', views.view_cart, name='view_cart'),
     path('checkout/', views.checkout, name='checkout'),
@@ -49,6 +48,5 @@ urlpatterns = [
 
 ]
 
-# Serve media files during development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

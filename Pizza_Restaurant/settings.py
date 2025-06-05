@@ -143,7 +143,7 @@ EMAIL_HOST_PASSWORD = 'ttap jnae hcad unrp'
 DEFAULT_FROM_EMAIL = 'your_email@gmail.com'
 
 
-# For local testing:
+# We used this for local testing:
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 

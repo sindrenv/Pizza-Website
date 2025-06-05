@@ -108,7 +108,6 @@ def add_to_cart(request):
 
     if request.method == 'POST':
 
-        # Drinks
         if 'drink_id' in request.POST:
             drink_id = request.POST.get('drink_id')
             quantity = int(request.POST.get('quantity', 1))
@@ -136,7 +135,6 @@ def add_to_cart(request):
             messages.success(request, f"🥤 {drink.name} added to cart!")
             return redirect('order')
 
-        # Pizza
         if 'pizza_id' in request.POST and 'size_id' in request.POST:
             pizza_id = request.POST.get('pizza_id')
             size_id = request.POST.get('size_id')
@@ -150,7 +148,6 @@ def add_to_cart(request):
                 messages.error(request, "Pizza size not found.")
                 return redirect('order')
 
-            # Set topping price based on size
             size_label = pizza_size.get_size_display()
             if size_label == "Small":
                 topping_price = 10
@@ -159,7 +156,7 @@ def add_to_cart(request):
             elif size_label == "Large":
                 topping_price = 30
             else:
-                topping_price = 10  # default/fallback
+                topping_price = 10 
 
             selected_toppings = Topping.objects.filter(id__in=topping_ids)
             toppings_list = [{'id': t.id, 'name': t.name, 'price': topping_price} for t in selected_toppings]
@@ -274,7 +271,6 @@ def checkout(request):
         request.session['cart'] = []
         request.session['cart_drinks'] = []
 
-        # Prepare data for email
         order_items = order.order_pizzas.select_related('pizza', 'size').prefetch_related('toppings')
         order_drinks = order.order_drinks.select_related('drink')
 
@@ -344,7 +340,7 @@ def remove_drink_from_cart(request, index):
 
 @require_POST
 def update_cart_quantity(request):
-    item_type = request.POST.get('type')  # 'pizza' or 'drink'
+    item_type = request.POST.get('type') 
     index = int(request.POST.get('index'))
     quantity = int(request.POST.get('quantity'))
 
@@ -438,14 +434,12 @@ def reorder(request, order_id):
 
     original_order = get_object_or_404(Order, id=order_id, customer=customer_profile)
 
-    # Create a new order
     new_order = Order.objects.create(
         customer=customer_profile,
         total=0,
         status='PENDING'
     )
 
-    # Copy each pizza from original order
     for item in original_order.order_pizzas.all():
         new_item = OrderPizza.objects.create(
             order=new_order,
@@ -456,14 +450,12 @@ def reorder(request, order_id):
             special_instructions=item.special_instructions
         )
 
-    # Copy toppings
     for topping in item.toppings.all():
         OrderPizzaTopping.objects.create(
             order_pizza=new_item,
             topping=topping
         )
 
-    # Copy drinks
     for drink_item in original_order.order_drinks.all():
         OrderDrink.objects.create(
             order=new_order,
@@ -472,7 +464,6 @@ def reorder(request, order_id):
             price_at_time=drink_item.price_at_time
         )
 
-    # Recalculate total
     new_order.calculate_total()
 
     messages.success(request, f"Order #{original_order.id} reordered successfully.")
