@@ -18,4 +18,4 @@ Total: {{ total|floatformat:2 }} kr
 We’ll get started right away!
 
 Regards,  
-La Pizzería
+The Pizzeria

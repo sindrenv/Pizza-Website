@@ -70,7 +70,7 @@ class Topping(models.Model):
 
 
 class Order(models.Model):
-    STATUS_CHOICES = [
+    STATUS_CHOICES = [ 
         ('PENDING', 'Pending'),
         ('IN_PROGRESS', 'In Progress'),
         ('ON_THE_WAY', 'On the Way'),

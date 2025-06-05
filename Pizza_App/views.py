@@ -295,7 +295,7 @@ def checkout(request):
         message = render_to_string('emails/order_confirmation_email.txt', email_context)
 
         send_mail(
-            subject=f"🍕 Your La Pizzería Order Confirmation (Order #{order.id})",
+            subject=f"🍕 Your The Pizzeria Order Confirmation (Order #{order.id})",
             message=message,
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[customer.email],
